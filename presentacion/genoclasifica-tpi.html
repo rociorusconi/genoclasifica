@@ -55,6 +55,12 @@ img, video, canvas, svg { max-width: 100%; max-height: 100%; }
     .slide { position: relative; display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; width: 1920px; height: 1080px; break-after: page; page-break-after: always; }
     .slide:last-child { break-after: auto; page-break-after: auto; }
     .deck-controls { display: none !important; }
+    /* PDF: tamaño exacto de slide, colores de fondo y contenido sin animación */
+    @page { size: 1920px 1080px; margin: 0; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .bar { animation: none !important; }
+    .progress, .edit-hotzone, .edit-toggle { display: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
@@ -130,24 +136,41 @@ img, video, canvas, svg { max-width: 100%; max-height: 100%; }
 @keyframes grow { from { transform: scaleY(0); } }
 
 /* ===========================================
-   SLIDE 1: PORTADA + PROBLEMA
+   SLIDE 1: PORTADA
    =========================================== */
-.s1 .bar { height: 420px; }
-.s1 h1 { position: absolute; left: 216px; top: 140px; font: 800 168px/0.9 var(--font-display); letter-spacing: -0.045em; }
+.s1 .bar { top: 200px; height: 600px; }
+.s1 h1 { position: absolute; left: 216px; top: 190px; font: 800 220px/0.9 var(--font-display); letter-spacing: -0.045em; }
 .s1 h1 span { color: var(--red); }
-.s1 .q { position: absolute; left: 216px; top: 470px; width: 1000px; font: 700 46px/1.15 var(--font-display); letter-spacing: -0.02em; }
-.s1 .what { position: absolute; left: 216px; top: 600px; width: 860px; font-size: 28px; line-height: 1.45; color: var(--muted); }
-.s1 .news { position: absolute; left: 1200px; top: 170px; width: 560px; }
-.s1 .news li { list-style: none; display: flex; gap: 22px; padding: 20px 0; border-bottom: 2px solid var(--ink); font-size: 28px; line-height: 1.3; }
-.s1 .news li b { font: 800 28px var(--font-display); color: var(--red); min-width: 40px; }
-.s1 .risk { position: absolute; left: 160px; right: 160px; top: 770px; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-.s1 .risk > div { padding: 30px 40px; font-size: 30px; line-height: 1.3; }
-.s1 .risk .neg { background: var(--ink); color: #fff; }
-.s1 .risk .pos { background: var(--soft); }
-.s1 .risk b { display: block; font: 800 34px var(--font-display); margin-bottom: 6px; }
-.s1 .risk .neg b { color: #ff6a57; }
+.s1 .q { position: absolute; left: 216px; top: 640px; width: 1500px; font: 700 56px/1.15 var(--font-display); letter-spacing: -0.02em; }
+.s1 .what { position: absolute; left: 216px; top: 740px; width: 1400px; font-size: 34px; line-height: 1.4; color: var(--muted); }
 .s1 .team { position: absolute; left: 160px; bottom: 48px; font-size: 20px; color: var(--muted); }
+
+/* ===========================================
+   SLIDE 2: QUÉ CAMBIA Y QUÉ ESTÁ EN JUEGO
+   Reutiliza la lista "Qué trae la 4.2.0" y los recuadros de riesgo
+   =========================================== */
+.s1b .news { position: absolute; left: 160px; top: 340px; width: 780px; }
+.s1b .news li { list-style: none; display: flex; gap: 26px; padding: 26px 0; border-bottom: 2px solid var(--ink); font-size: 34px; line-height: 1.3; }
+.s1b .news li b { font: 800 34px var(--font-display); color: var(--red); min-width: 50px; }
+.s1b .risk { position: absolute; left: 1040px; right: 160px; top: 340px; display: grid; grid-template-rows: 1fr 1fr; gap: 0; height: 520px; }
+.s1b .risk > div { padding: 40px 44px; font-size: 34px; line-height: 1.3; display: flex; flex-direction: column; justify-content: center; }
+.s1b .risk .neg { background: var(--ink); color: #fff; }
+.s1b .risk .pos { background: var(--soft); }
+.s1b .risk b { display: block; font: 800 44px var(--font-display); margin-bottom: 10px; }
+.s1b .risk .neg b { color: #ff6a57; }
 .s1 .team b { color: var(--ink); font-weight: 700; }
+
+/* ===========================================
+   SLIDE 3: CÓMO FUNCIONA GENOCLASIFICA
+   Diagrama SVG de flujo. Coordenadas a 1600×560.
+   =========================================== */
+.pipe { position: absolute; left: 160px; right: 160px; top: 340px; height: 560px; }
+.pipe svg { width: 1600px; height: 560px; overflow: visible; }
+.pipe .lbl { font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+.pipe .sub { font-family: var(--font-body); font-size: 17px; }
+.pipe .note { font-family: var(--font-body); font-size: 19px; }
+.pipe .leg { font-family: var(--font-body); font-size: 23px; }
+.pipe .kick { font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: 0.14em; }
 
 /* ===========================================
    SLIDE 2: ALCANCE Y ESTRATEGIA
@@ -171,21 +194,21 @@ table.grid td:first-child { font-weight: 700; }
 /* ===========================================
    SLIDE 3: RIESGOS Y CRITERIOS
    =========================================== */
-.risks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-.risk-card { border-top: 10px solid var(--ink); background: var(--soft); padding: 26px 28px 30px; min-height: 230px; }
-.risk-card.hot { border-top-color: var(--red); }
-.risk-card .id { font: 800 46px var(--font-display); letter-spacing: -0.02em; }
-.risk-card.hot .id { color: var(--red); }
-.risk-card p { font-size: 26px; line-height: 1.3; margin-top: 10px; }
-.s3 .row2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 64px; margin-top: 48px; }
-.rule li { list-style: none; display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: center; padding: 14px 0; border-bottom: 1px solid #d6d6d6; font-size: 24px; }
-.rule li b { font: 800 26px var(--font-display); }
-.rule li:nth-child(1) b { color: var(--ink); }
+/* Dos columnas: matriz de riesgos (izq.) y regla de liberación (der.) */
+.s3 .cols { display: grid; grid-template-columns: 1.6fr 1fr; gap: 80px; }
+/* Matriz: filas P1 con ID y borde izquierdo en rojo */
+.riskrows { list-style: none; border-top: 3px solid var(--ink); }
+.riskrows li { display: grid; grid-template-columns: 110px 1fr; align-items: center; padding: 14px 0 14px 18px; border-bottom: 1px solid #d6d6d6; border-left: 8px solid transparent; font-size: 25px; line-height: 1.25; }
+.riskrows li b { font: 800 26px var(--font-display); letter-spacing: -0.01em; }
+.riskrows li.p1 { border-left-color: var(--red); }
+.riskrows li.p1 b { color: var(--red); }
+.riskrows li:not(.p1) { color: var(--muted); }
+.kicker .p1tag { color: var(--red); }
+/* Regla de liberación: etiqueta arriba, condición abajo */
+.rule { list-style: none; border-top: 3px solid var(--ink); }
+.rule li { padding: 20px 0; border-bottom: 1px solid #d6d6d6; font-size: 25px; line-height: 1.3; }
+.rule li b { display: block; font: 800 30px var(--font-display); margin-bottom: 6px; }
 .rule li:nth-child(3) b { color: var(--red); }
-.envs { display: flex; gap: 12px; flex-wrap: wrap; }
-.env { border: 3px solid var(--ink); padding: 14px 22px; font: 700 26px var(--font-display); }
-.env.ghost { border-style: dashed; color: var(--muted); border-color: var(--muted); }
-.envs + p { margin-top: 16px; font-size: 22px; color: var(--muted); }
 
 /* ===========================================
    SLIDE 4: AMBIGÜEDADES + VALORES LÍMITE
@@ -236,23 +259,43 @@ table.grid td:first-child { font-weight: 700; }
 .pct { display: inline-block; margin-top: 26px; background: var(--red); color: #fff; font: 800 36px var(--font-display); padding: 10px 22px; }
 
 /* ===========================================
-   SLIDE 7: CAJA BLANCA
+   SLIDE 7: MAPA DE TÉCNICAS ("Cómo diseñamos los casos")
+   Filas .q30 resaltadas: comparten la regla de Q30
+   =========================================== */
+.techmap { position: absolute; left: 160px; right: 160px; top: 340px; }
+.techmap table { border-collapse: collapse; width: 100%; font-size: 24px; }
+.techmap th { text-align: left; font: 700 18px var(--font-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 0 18px 14px; border-bottom: 3px solid var(--ink); }
+.techmap td { padding: 16px 18px; border-bottom: 1px solid #d6d6d6; vertical-align: top; line-height: 1.25; }
+.techmap td:first-child { font: 700 25px/1.2 var(--font-display); border-left: 8px solid transparent; }
+.techmap td:last-child { font-weight: 700; white-space: nowrap; }
+.techmap td:nth-child(3) { white-space: nowrap; color: var(--muted); }
+.techmap tr.q30 td { background: var(--red-soft); }
+.techmap tr.q30 td:first-child { border-left-color: var(--red); color: var(--red); }
+.techmap .foot { margin-top: 18px; font-size: 21px; color: var(--muted); }
+.techmap .foot b { color: var(--red); }
+
+/* ===========================================
+   SLIDE 9: CAJA BLANCA
    =========================================== */
 .code {
     position: absolute; left: 160px; top: 340px; width: 960px;
-    background: #141414; color: #e8e8e8; padding: 34px 40px;
-    font: 400 24px/1.65 var(--font-mono);
+    background: #141414; color: #e8e8e8; padding: 28px 40px;
+    font: 400 23px/1.6 var(--font-mono);
 }
 .code .k { color: #ff8a7a; } .code .c { color: #8a8a8a; } .code .n { color: #9fd3ff; }
 .code .path { display: inline-block; background: var(--red); color: #fff; font-weight: 600; padding: 0 10px; margin-left: 14px; font-size: 20px; }
-.paths { position: absolute; left: 160px; top: 720px; width: 960px; }
+.paths { position: absolute; left: 160px; top: 640px; width: 960px; }
 .paths li { list-style: none; display: grid; grid-template-columns: 70px 1fr; padding: 10px 0; border-bottom: 1px solid #d6d6d6; font-size: 25px; }
 .paths li b { color: var(--red); font-family: var(--font-display); }
-.stats { position: absolute; left: 1200px; right: 160px; top: 340px; display: grid; gap: 22px; }
-.stat { border-top: 6px solid var(--ink); padding-top: 12px; }
-.stat .v { font: 800 104px/1 var(--font-display); letter-spacing: -0.04em; }
+/* Indicadores en filas: número a la izquierda, texto a la derecha (sin superposición) */
+.stats { position: absolute; left: 1200px; right: 160px; top: 340px; display: grid; gap: 14px; }
+.stat { border-top: 6px solid var(--ink); padding-top: 10px; display: grid; grid-template-columns: 250px 1fr; align-items: center; gap: 20px; }
+.stat .v { font: 800 76px/1.05 var(--font-display); letter-spacing: -0.03em; white-space: nowrap; }
 .stat .v span { color: var(--red); }
-.stat .l { font-size: 24px; color: var(--muted); }
+.stat .l { font-size: 24px; line-height: 1.25; color: var(--muted); }
+/* Frase destacada al pie */
+.callout { position: absolute; left: 160px; right: 160px; top: 836px; border-left: 10px solid var(--red); background: var(--soft); padding: 20px 32px; font: 700 29px/1.3 var(--font-display); letter-spacing: -0.01em; }
+.callout span { color: var(--red); }
 .tdd { display: flex; gap: 0; margin-top: 8px; }
 .tdd div { flex: 1; text-align: center; padding: 12px 0; font: 800 22px var(--font-display); letter-spacing: 0.08em; }
 .tdd .r { background: var(--red); color: #fff; }
@@ -273,19 +316,64 @@ table.grid td:first-child { font-weight: 700; }
 .res .t { font: 700 28px var(--font-display); }
 .res .goal { font-size: 22px; color: var(--muted); margin-top: 4px; }
 .res .todo { font-size: 22px; }
+/* Slide "Pruebas automatizadas": dos bloques + nota al pie */
+.s8 .tool .name { font-size: 34px; }
+.s8k { position: absolute; left: 160px; top: 600px; }
+.s8r { top: 662px; }
+.s8note { position: absolute; left: 160px; top: 878px; font-size: 22px; color: var(--muted); }
+.s8note .todo { font-size: 20px; }
+/* Slide "Ejecución manual y defectos": dos columnas + ficha de defecto */
+.exec2 { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; }
+.xlist { list-style: none; border-top: 3px solid var(--ink); margin-bottom: 26px; }
+.xlist li { font-size: 25px; line-height: 1.3; padding: 16px 0 16px 28px; border-bottom: 1px solid #d6d6d6; position: relative; }
+.xlist li::before { content: ""; position: absolute; left: 0; top: 28px; width: 12px; height: 12px; background: var(--red); }
+.xtext { font-size: 25px; line-height: 1.35; border-top: 3px solid var(--ink); padding-top: 16px; }
+.xsev { margin: 18px 0 22px; }
+.xsev .todo, .s9 .res .todo { font-size: 22px; }
+.ficha { border: 3px solid var(--ink); }
+.ficha-h { background: var(--ink); color: #fff; font: 700 18px var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; padding: 10px 20px; }
+.ficha dl { display: grid; grid-template-columns: 1fr 1fr; }
+.ficha dl > div { padding: 12px 20px; border-bottom: 1px solid #d6d6d6; }
+.ficha dl > div:nth-child(odd) { border-right: 1px solid #d6d6d6; }
+.ficha dl > div:nth-last-child(-n+2) { border-bottom: none; }
+.ficha dt { font: 700 16px var(--font-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.ficha dd .todo { font-size: 19px; }
 
 /* ===========================================
    SLIDE 10: MÉTRICAS, CONCLUSIONES, RECOMENDACIÓN
    =========================================== */
-.s10 .kpi { position: absolute; left: 160px; top: 340px; width: 960px; }
-.s10 .kpi td:nth-child(2) { font-family: var(--font-display); font-weight: 800; white-space: nowrap; }
-.s10 .lim { position: absolute; left: 1200px; right: 160px; top: 340px; }
-.s10 .lim li { list-style: none; font-size: 24px; line-height: 1.3; padding: 12px 0; border-bottom: 1px solid #d6d6d6; }
-.s10 .lim li::before { content: "— "; color: var(--red); font-weight: 700; }
-.reco { position: absolute; left: 160px; right: 160px; top: 760px; background: var(--ink); color: #fff; padding: 30px 40px; display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
-.reco .k { font: 800 24px var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; color: #ff6a57; }
-.reco .todo { background: rgba(224,48,30,.18); color: #ffb3a8; border-color: #ff6a57; font-size: 24px; }
-.s10 .ia { position: absolute; left: 160px; bottom: 48px; font-size: 20px; color: var(--muted); }
+/* --- Slide 12: resultados frente a criterios de salida --- */
+.kpis { position: absolute; left: 160px; right: 160px; top: 330px; }
+.kpis table { border-collapse: collapse; width: 100%; font-size: 23px; }
+.kpis th { text-align: left; font: 700 17px var(--font-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 0 16px 10px; border-bottom: 3px solid var(--ink); }
+.kpis td { padding: 9px 16px; border-bottom: 1px solid #d6d6d6; vertical-align: middle; line-height: 1.2; }
+.kpis td:nth-child(2) { font-family: var(--font-display); font-weight: 800; white-space: nowrap; }
+.kpis td:nth-child(4), .kpis th:nth-child(4) { text-align: center; width: 170px; }
+.kpis .todo { font-size: 18px; padding: 2px 10px; }
+.kpis tr.grp td { background: var(--soft); font: 700 17px var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); padding: 8px 16px; border-left: 8px solid var(--ink); }
+.kpis .nm { font-weight: 700; }
+.kpis .nm small { display: block; font-weight: 400; font-size: 17px; color: var(--muted); margin-top: 2px; }
+/* Semáforo para la columna ¿Cumple?: reemplazar el [COMPLETAR] por
+   <span class="sem ok">✓</span>  o  <span class="sem no">✗</span> */
+.sem { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; font: 800 24px var(--font-display); color: #fff; }
+.sem.ok { background: #1f8a4c; }
+.sem.no { background: var(--red); }
+.sem.na { background: none; color: var(--muted); }
+
+/* --- Slide 13: cierre --- */
+.reco13 { position: absolute; left: 160px; right: 160px; top: 350px; background: var(--ink); color: #fff; padding: 40px 48px; }
+.reco13 .k { font: 800 22px var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; color: #ff6a57; margin-bottom: 16px; }
+.reco13 .main { font: 800 46px/1.2 var(--font-display); letter-spacing: -0.02em; }
+.reco13 .why { margin-top: 22px; }
+.reco13 .todo { background: rgba(224,48,30,.18); color: #ffb3a8; border-color: #ff6a57; }
+.reco13 .main .todo { font-size: 30px; vertical-align: middle; }
+.reco13 .why .todo { font-size: 22px; }
+.lim13 { position: absolute; left: 160px; right: 160px; top: 690px; }
+.lim13 ul { list-style: none; border-top: 3px solid var(--ink); }
+.lim13 li { font-size: 25px; line-height: 1.3; padding: 13px 0 13px 44px; border-bottom: 1px solid #d6d6d6; position: relative; }
+.lim13 li::before { content: "—"; position: absolute; left: 0; color: var(--red); font-weight: 700; }
+.s12 .h2 { font-size: 70px; }
+.s13 .ia { position: absolute; left: 160px; bottom: 48px; font-size: 20px; color: var(--muted); }
 
 /* ===========================================
    CONTROLES Y PROGRESO (fuera del diseño del slide)
@@ -308,15 +396,26 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
 <main class="deck-stage" id="deckStage">
 
 <!-- ===================================================
-     SLIDE 1 · Portada + problema · Kiara
+     SLIDE 1 · Portada · Kiara
      =================================================== -->
 <section class="slide s1 active">
-    <div class="top"><span>Verificación y Validación de Software · UNSAM</span><span class="right"><span class="num">01 / 10</span></span></div>
+    <div class="top"><span>Verificación y Validación de Software · UNSAM</span><span class="right"><span class="num">01 / 13</span></span></div>
     <div class="bar"></div>
     <h1 class="reveal">Geno<br>Clasifica <span>4.2</span></h1>
-    <p class="q reveal d1">¿Liberar, liberar con condiciones o no liberar?</p>
-    <p class="what reveal d2">Una IA propone 1 de 5 categorías para cada variante genética, con su confianza. Un genetista revisa y firma antes de emitir el informe PDF.</p>
-    <div class="news reveal d2">
+    <p class="q reveal d1">Un modelo de IA para clasificar variantes genéticas</p>
+    <p class="what reveal d2">La IA propone, el genetista revisa y firma.</p>
+    <div class="team"><b>Kiara Precopio</b> · <b>Rocío Rusconi</b> · <b>Kalil Yasin</b> &nbsp;— equipo de QA independiente</div>
+    <div class="presenter">Presenta: Kiara</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 2 · Qué cambia y qué está en juego · Kiara
+     =================================================== -->
+<section class="slide s1b">
+    <div class="top"><span>Qué cambia y qué está en juego</span><span class="right"><span class="num">02 / 13</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Qué cambia y <span>qué está en juego</span></h2>
+    <div class="news reveal d1">
         <div class="kicker">Qué trae la 4.2.0</div>
         <ul>
             <li><b>01</b>Modelo para inserciones y deleciones</li>
@@ -325,23 +424,108 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
             <li><b>04</b>API nueva para el LIMS</li>
         </ul>
     </div>
-    <div class="risk reveal d4">
+    <div class="risk reveal d3">
         <div class="neg"><b>Falso negativo</b>Un paciente queda sin seguimiento.</div>
         <div class="pos"><b>Falso positivo</b>Estudios o cirugías innecesarias.</div>
     </div>
-    <div class="team"><b>Kiara Precopio</b> · <b>Rocío Rusconi</b> · <b>Kalil Yasin</b> &nbsp;— equipo de QA independiente</div>
     <div class="presenter">Presenta: Kiara</div>
 </section>
 
 <!-- ===================================================
-     SLIDE 2 · Alcance y estrategia · Kiara
+     SLIDE 3 · Cómo funciona GenoClasifica · Kiara
+     Negro = cubierto por la implementación de referencia (barra roja)
+     Gris punteado = fuera de alcance
+     =================================================== -->
+<section class="slide s3b">
+    <div class="top"><span>Cómo funciona</span><span class="right"><span class="num">03 / 13</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Cómo funciona <span>GenoClasifica</span></h2>
+    <div class="pipe reveal d2">
+        <svg viewBox="0 0 1600 560" aria-label="Flujo de GenoClasifica desde el secuenciador hasta el informe PDF, con el LIMS conectado por API REST">
+            <defs>
+                <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111"/></marker>
+                <marker id="pg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a9a9a"/></marker>
+                <marker id="pr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e0301e"/></marker>
+            </defs>
+
+            <!-- Marco del sistema -->
+            <rect x="-28" y="0" width="1656" height="230" fill="none" stroke="#111" stroke-width="2"/>
+            <text x="0" y="36" class="kick" fill="#6b6b6b">GENOCLASIFICA</text>
+
+            <!-- Etapas fuera de alcance: gris punteado -->
+            <g fill="#fff" stroke="#9a9a9a" stroke-width="3" stroke-dasharray="9 7">
+                <rect x="0"   y="60" width="200" height="120"/>
+                <rect x="466" y="60" width="200" height="120"/>
+                <rect x="699" y="60" width="200" height="120"/>
+            </g>
+            <g class="lbl" fill="#8a8a8a" text-anchor="middle">
+                <text x="100" y="128">Secuenciador</text>
+                <text x="566" y="114">Detección de</text><text x="566" y="142">variantes</text>
+                <text x="799" y="114">Anotación con</text><text x="799" y="142">bases públicas</text>
+            </g>
+
+            <!-- Etapas cubiertas: borde negro -->
+            <g fill="#fff" stroke="#111" stroke-width="3">
+                <rect x="233"  y="60" width="200" height="120"/>
+                <rect x="932"  y="60" width="200" height="120"/>
+                <rect x="1165" y="60" width="200" height="120"/>
+                <rect x="1398" y="60" width="200" height="120"/>
+            </g>
+            <g class="lbl" fill="#111" text-anchor="middle">
+                <text x="333" y="114">Control de</text><text x="333" y="142">calidad</text>
+                <text x="1032" y="110">Modelo de IA</text>
+                <text x="1265" y="114">Revisión y firma</text><text x="1265" y="142">del genetista</text>
+                <text x="1498" y="128">Informe PDF</text>
+            </g>
+            <text x="1032" y="142" class="sub" fill="#6b6b6b" text-anchor="middle">categoría + confianza</text>
+
+            <!-- Flechas entre etapas -->
+            <g stroke-width="3">
+                <line x1="202" y1="120" x2="230" y2="120" stroke="#9a9a9a" marker-end="url(#pg)"/>
+                <line x1="435" y1="120" x2="463" y2="120" stroke="#9a9a9a" marker-end="url(#pg)"/>
+                <line x1="668" y1="120" x2="696" y2="120" stroke="#9a9a9a" marker-end="url(#pg)"/>
+                <line x1="901" y1="120" x2="929" y2="120" stroke="#9a9a9a" marker-end="url(#pg)"/>
+                <line x1="1134" y1="120" x2="1162" y2="120" stroke="#111" marker-end="url(#pa)"/>
+                <line x1="1367" y1="120" x2="1395" y2="120" stroke="#111" marker-end="url(#pa)"/>
+            </g>
+
+            <!-- Cobertura de la implementación de referencia: barras rojas -->
+            <rect x="233" y="192" width="200" height="10" fill="#e0301e"/>
+            <rect x="932" y="192" width="666" height="10" fill="#e0301e"/>
+
+            <!-- Nota de Control de calidad -->
+            <line x1="333" y1="202" x2="333" y2="250" stroke="#e0301e" stroke-width="2"/>
+            <g class="note" fill="#111" text-anchor="middle">
+                <text x="333" y="276">reglas Q30, cobertura y</text>
+                <text x="333" y="300">contaminación, sobre</text>
+                <text x="333" y="324">valores sintéticos</text>
+            </g>
+
+            <!-- LIMS conectado por API REST (flecha en ambos sentidos) -->
+            <line x1="1330" y1="234" x2="1330" y2="376" stroke="#e0301e" stroke-width="4" marker-start="url(#pr)" marker-end="url(#pr)"/>
+            <text x="1350" y="312" class="lbl" fill="#e0301e">API REST</text>
+            <rect x="1180" y="380" width="300" height="96" fill="#111"/>
+            <text x="1330" y="436" class="lbl" fill="#fff" text-anchor="middle" font-size="28">LIMS</text>
+
+            <!-- Leyenda -->
+            <rect x="0" y="425" width="44" height="10" fill="#e0301e"/>
+            <text x="64" y="438" class="leg" fill="#111">Cubierto por nuestra implementación de referencia</text>
+            <rect x="0" y="472" width="44" height="28" fill="none" stroke="#9a9a9a" stroke-width="3" stroke-dasharray="7 5"/>
+            <text x="64" y="494" class="leg" fill="#6b6b6b">Fuera de alcance: los valores y las variantes entran ya calculados en JSON</text>
+        </svg>
+    </div>
+    <div class="presenter">Presenta: Kiara</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 4 · Alcance y estrategia · Kiara
      =================================================== -->
 <section class="slide s2">
-    <div class="top"><span>Alcance y estrategia</span><span class="right"><span class="num">02 / 10</span></span></div>
+    <div class="top"><span>Alcance y estrategia</span><span class="right"><span class="num">04 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">Qué probamos <span>y cómo</span></h2>
     <div class="left">
-        <div class="note reveal d1"><b>Implementación de referencia propia</b> en Java 21 + Spring Boot (RF-01 a RF-10). IA simulada. Solo datos sintéticos (leyes 25.326 y 26.529).</div>
+        <div class="note reveal d1"><b>Implementación de referencia propia</b> en Java 21 + Spring Boot (RF-01 a RF-10). IA simulada.</div>
         <div class="inout reveal d2">
             <div class="in"><div class="kicker">Dentro</div><ul>
                 <li>Reglas RF-01 a RF-10</li>
@@ -366,7 +550,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <tr><td>Calidad de los tests</td><td>Unitario</td><td>Mutación</td><td>PIT</td></tr>
                 <tr><td>API REST / LIMS</td><td>Integración</td><td>Caja negra y gris</td><td>Spring Boot Test, Postman</td></tr>
                 <tr><td>Revisión y firma</td><td>Aceptación</td><td>BDD</td><td>Cucumber</td></tr>
-                <tr><td>Combinaciones</td><td>Sistema</td><td>Pairwise</td><td>—</td></tr>
+                <tr><td>Combinaciones</td><td>Sistema</td><td>Pairwise</td><td>PICT</td></tr>
                 <tr><td>Portal</td><td>Sistema</td><td>Exploratoria y E2E</td><td>Selenium</td></tr>
             </tbody>
         </table>
@@ -375,32 +559,33 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
 </section>
 
 <!-- ===================================================
-     SLIDE 3 · Riesgos y criterios · Kiara
+     SLIDE 5 · Riesgos y criterios · Kiara
      =================================================== -->
 <section class="slide s3">
-    <div class="top"><span>Riesgos y criterios</span><span class="right"><span class="num">03 / 10</span></span></div>
+    <div class="top"><span>Riesgos y criterios</span><span class="right"><span class="num">05 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">Priorizamos por <span>riesgo clínico</span></h2>
     <div class="body">
-        <div class="risks">
-            <div class="risk-card hot reveal d1"><div class="id">R-01</div><p>La IA da un falso negativo</p></div>
-            <div class="risk-card reveal d2"><div class="id">R-02</div><p>Fallas de calidad o bloqueo de la muestra</p></div>
-            <div class="risk-card hot reveal d3"><div class="id">R-03</div><p>Se emite un informe sin firma</p></div>
-            <div class="risk-card reveal d4"><div class="id">R-05</div><p>Seguridad y trazabilidad</p></div>
-        </div>
-        <div class="row2">
-            <div class="reveal d5">
-                <div class="kicker">Regla de liberación · Definition of Done</div>
-                <ul class="rule">
-                    <li><b>Liberar</b><span class="todo">[COMPLETAR: condición según DoD]</span></li>
-                    <li><b>Liberar con condiciones</b><span class="todo">[COMPLETAR: condición según DoD]</span></li>
-                    <li><b>No liberar</b><span class="todo">[COMPLETAR: condición según DoD]</span></li>
+        <div class="cols">
+            <div class="reveal d1">
+                <div class="kicker">Matriz de riesgos · de mayor a menor prioridad · <span class="p1tag">en rojo, P1</span></div>
+                <ul class="riskrows">
+                    <li class="p1"><b>R-01</b><span>La IA clasifica una patogénica como benigna (falso negativo)</span></li>
+                    <li class="p1"><b>R-02</b><span>Falla el control de calidad o el bloqueo de la muestra</span></li>
+                    <li class="p1"><b>R-05</b><span>Fallas de seguridad, permisos o trazabilidad</span></li>
+                    <li class="p1"><b>R-03</b><span>Se emite un informe sin firma del genetista</span></li>
+                    <li class="p1"><b>R-04</b><span>Corridas duplicadas o datos corruptos en la API</span></li>
+                    <li><b>R-06</b><span>La reclasificación no notifica o altera informes emitidos</span></li>
+                    <li><b>R-07</b><span>Búsquedas lentas en el portal o tests débiles</span></li>
                 </ul>
             </div>
-            <div class="reveal d6">
-                <div class="kicker">Entornos · perfiles de Spring Boot</div>
-                <div class="envs"><span class="env">Desarrollo</span><span class="env">QA</span><span class="env">Staging</span><span class="env ghost">Producción</span></div>
-                <p>Producción solo se describe, no se prueba.</p>
+            <div class="reveal d3">
+                <div class="kicker">Regla de liberación · Definition of Done</div>
+                <ul class="rule">
+                    <li><b>Liberar</b>Se cumple todo el Definition of Done.</li>
+                    <li><b>Liberar con condiciones</b>Solo quedan defectos de severidad media o baja, con plan de corrección y fecha.</li>
+                    <li><b>No liberar</b>Hay un defecto crítico o alto abierto, falla una métrica del modelo o quedan casos P1 sin ejecutar.</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -408,10 +593,10 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
 </section>
 
 <!-- ===================================================
-     SLIDE 4 · Requerimientos y valores límite · Rocío
+     SLIDE 6 · Requerimientos y valores límite · Rocío
      =================================================== -->
 <section class="slide s4">
-    <div class="top"><span>Análisis de requerimientos</span><span class="right"><span class="num">04 / 10</span></span></div>
+    <div class="top"><span>Análisis de requerimientos</span><span class="right"><span class="num">06 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">Ambigüedad → <span>supuesto escrito</span></h2>
     <div class="amb">
@@ -435,11 +620,34 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
 </section>
 
 <!-- ===================================================
-     SLIDE 5 · Transición de estados · Rocío
+     SLIDE 7 · Cómo diseñamos los casos (mapa de técnicas) · Rocío
+     =================================================== -->
+<section class="slide s7m">
+    <div class="top"><span>Diseño de casos</span><span class="right"><span class="num">07 / 13</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Cómo diseñamos <span>los casos</span></h2>
+    <div class="techmap reveal d2">
+        <table>
+            <thead><tr><th>Técnica</th><th>Ejemplo</th><th>Requisitos</th><th>Casos</th></tr></thead>
+            <tbody>
+                <tr class="q30"><td>Partición de equivalencia y valores límite</td><td>Q30 en 79,9 / 80,0 / 80,1</td><td>RF-02, RF-03, RF-05</td><td>37 casos</td></tr>
+                <tr><td>Tablas de decisión</td><td>Emisión del informe: muestra aceptada + variantes patogénicas + firma</td><td>RF-06, RF-07</td><td>2 tablas, 9 reglas</td></tr>
+                <tr><td>Transición de estados</td><td>Ciclo de vida de la muestra</td><td>RF-01, RF-06, RF-08</td><td>12 válidas, 11 inválidas</td></tr>
+                <tr><td>Caja gris</td><td>El hash del PDF emitido no cambia tras una reclasificación</td><td>RF-08</td><td>4 casos</td></tr>
+                <tr><td>Pairwise</td><td>4 parámetros: 54 combinaciones → 9 casos (83&nbsp;%&nbsp;menos)</td><td>Varios</td><td>9 casos</td></tr>
+                <tr class="q30"><td>Caja blanca</td><td>ControlCalidad: 3 caminos independientes</td><td>RF-02</td><td>100 % líneas y ramas</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="presenter">Presenta: Rocío</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 8 · Transición de estados · Rocío
      Diagrama SVG. Coordenadas a 1600×380.
      =================================================== -->
 <section class="slide s5">
-    <div class="top"><span>Transición de estados</span><span class="right"><span class="num">05 / 10</span></span></div>
+    <div class="top"><span>Transición de estados</span><span class="right"><span class="num">08 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">El ciclo de vida <span>de la muestra</span></h2>
     <div class="flow reveal d2">
@@ -492,47 +700,10 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
 </section>
 
 <!-- ===================================================
-     SLIDE 6 · Tablas de decisión, caja gris, pairwise · Rocío
-     =================================================== -->
-<section class="slide s6">
-    <div class="top"><span>Técnicas de diseño de casos</span><span class="right"><span class="num">06 / 10</span></span></div>
-    <div class="bar"></div>
-    <h2 class="h2 reveal">Menos casos, <span>mejor elegidos</span></h2>
-    <div class="body">
-        <div class="three">
-            <div class="reveal d1">
-                <div class="kicker">Tabla de decisión · emisión del informe</div>
-                <table class="grid dt">
-                    <thead><tr><th>Muestra aceptada</th><th>Variantes patogénicas</th><th>Firma</th><th>¿Se emite?</th></tr></thead>
-                    <tbody>
-                        <tr><td>No</td><td>–</td><td>–</td><td class="no">No</td></tr>
-                        <tr><td>Sí</td><td>–</td><td>No</td><td class="no">No</td></tr>
-                        <tr><td>Sí</td><td>Sí</td><td>Sí</td><td class="yes">Sí</td></tr>
-                        <tr><td>Sí</td><td>No</td><td>Sí</td><td class="yes">Sí</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="reveal d2">
-                <div class="kicker">Caja gris · reclasificación</div>
-                <div class="hash">hash(PDF original)<br>antes de reclasificar<br><span class="eq">==</span><br>hash(PDF original)<br>después de reclasificar</div>
-                <p class="cap">El informe ya emitido no se modifica.</p>
-            </div>
-            <div class="reveal d3">
-                <div class="kicker">Pairwise</div>
-                <div class="big-num">54<br><span>→ 9</span></div>
-                <p class="cap">combinaciones → casos de prueba</p>
-                <span class="pct">83 % menos</span>
-            </div>
-        </div>
-    </div>
-    <div class="presenter">Presenta: Rocío</div>
-</section>
-
-<!-- ===================================================
-     SLIDE 7 · Caja blanca · Kalil
+     SLIDE 9 · Caja blanca · Kalil
      =================================================== -->
 <section class="slide s7">
-    <div class="top"><span>Caja blanca</span><span class="right"><span class="num">07 / 10</span></span></div>
+    <div class="top"><span>Caja blanca</span><span class="right"><span class="num">09 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">ControlCalidad<span>.esCalidadSuficiente</span></h2>
 <pre class="code reveal d1"><span class="k">public boolean</span> <span class="n">esCalidadSuficiente</span>(Double q30) {
@@ -549,84 +720,128 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
     <div class="stats">
         <div class="stat reveal d2"><div class="v">3</div><div class="l">caminos independientes</div></div>
         <div class="stat reveal d3"><div class="v">9</div><div class="l">tests en verde (JUnit 5)</div></div>
-        <div class="stat reveal d4"><div class="v">100<span>%</span></div><div class="l">líneas y ramas · JaCoCo</div></div>
+        <div class="stat reveal d4"><div class="v">100<span> %</span></div><div class="l">líneas y ramas · JaCoCo</div></div>
         <div class="reveal d5"><div class="tdd"><div class="r">RED</div><div class="g">GREEN</div><div class="f">REFACTOR</div></div></div>
     </div>
+    <div class="callout reveal d5">Los casos de caja negra de Q30 (CP-Q30-01 a 08) recorren el <span>100 % del método</span>. No hizo falta agregar casos nuevos.</div>
     <div class="presenter">Presenta: Kalil</div>
 </section>
 
 <!-- ===================================================
-     SLIDE 8 · Automatización, BDD y mutación · Kalil (en curso)
+     SLIDE 10 · Automatización, BDD y mutación · Kalil (en curso)
      =================================================== -->
 <section class="slide s8">
-    <div class="top"><span>Automatización</span><span class="right"><span class="tag-curso">En curso</span><span class="num">08 / 10</span></span></div>
+    <div class="top"><span>Automatización</span><span class="right"><span class="tag-curso">En curso</span><span class="num">10 / 13</span></span></div>
     <div class="bar"></div>
-    <h2 class="h2 reveal">Automatizar <span>lo que más importa</span></h2>
+    <h2 class="h2 reveal">Pruebas <span>automatizadas</span></h2>
+    <!-- Bloque 1: qué automatizamos -->
     <div class="body">
-        <div class="cols4">
-            <div class="tool reveal d1"><div class="name">Cucumber</div><div class="kind">BDD</div><p>Given-When-Then para revisión y firma, y umbral de confianza.</p></div>
+        <div class="kicker reveal d1">Qué automatizamos</div>
+        <div class="cols3">
+            <div class="tool reveal d1"><div class="name">JUnit 5 + Spring Boot Test</div><div class="kind">Unitarias · integración · regresión</div></div>
             <div class="tool reveal d2"><div class="name">Postman</div><div class="kind">API</div><p>Login, permisos por rol, datos inválidos o repetidos.</p></div>
-            <div class="tool reveal d3"><div class="name">JUnit 5</div><div class="kind">Regresión · TDD</div><p>Suite de regresión con evidencia red-green-refactor.</p></div>
-            <div class="tool reveal d4"><div class="name">PIT</div><div class="kind">Mutación</div><p>¿Los tests detectan cambios en el código?</p></div>
+            <div class="tool reveal d3"><div class="name">Cucumber</div><div class="kind">BDD</div><p>Given-When-Then de revisión y firma, y umbral de confianza.</p></div>
         </div>
     </div>
-    <div class="results reveal d5">
-        <div class="res"><div><div class="t">Cobertura total</div><div class="goal">JaCoCo · objetivo 80 %</div></div><span class="todo">[COMPLETAR: cobertura total JaCoCo]</span></div>
-        <div class="res"><div><div class="t">Puntaje de mutación</div><div class="goal">PIT · objetivo 75 %</div></div><span class="todo">[COMPLETAR: puntaje de mutación]</span></div>
+    <!-- Bloque 2: ¿las pruebas detectan errores? -->
+    <div class="kicker s8k reveal d4">¿Las pruebas detectan errores?</div>
+    <div class="results s8r reveal d4">
+        <div class="res"><div><div class="t">JaCoCo · cobertura</div><div class="goal">objetivo 80 %</div></div><span class="todo">[COMPLETAR: cobertura total JaCoCo]</span></div>
+        <div class="res"><div><div class="t">PIT · mutación</div><div class="goal">objetivo 75 %</div></div><span class="todo">[COMPLETAR: puntaje de mutación]</span></div>
     </div>
+    <p class="s8note reveal d5">Qué no automatizamos y por qué: <span class="todo">[COMPLETAR: criterio]</span></p>
     <div class="presenter">Presenta: Kalil</div>
 </section>
 
 <!-- ===================================================
-     SLIDE 9 · Pruebas manuales, portal y defectos · Kalil (en curso)
+     SLIDE 11 · Ejecución manual y defectos · Kalil (en curso)
      =================================================== -->
 <section class="slide s9">
-    <div class="top"><span>Pruebas manuales y defectos</span><span class="right"><span class="tag-curso">En curso</span><span class="num">09 / 10</span></span></div>
+    <div class="top"><span>Ejecución manual y defectos</span><span class="right"><span class="tag-curso">En curso</span><span class="num">11 / 13</span></span></div>
     <div class="bar"></div>
-    <h2 class="h2 reveal">Probar el portal <span>como un usuario</span></h2>
+    <h2 class="h2 reveal">Ejecución manual <span>y defectos</span></h2>
     <div class="body">
-        <div class="cols3">
-            <div class="tool reveal d1"><div class="name">Exploratorias</div><div class="kind">Manual</div><p>Sesiones exploratorias sobre el portal mínimo.</p></div>
-            <div class="tool reveal d2"><div class="name">Selenium</div><div class="kind">E2E</div><p>Flujo del portal automatizado de punta a punta.</p></div>
-            <div class="tool reveal d3"><div class="name">Jira · GCL</div><div class="kind">Defectos</div><p>Tablero Kanban con 5 épicas. Severidad según el impacto clínico.</p></div>
+        <div class="exec2">
+            <!-- Bloque 1: ejecución -->
+            <div class="reveal d1">
+                <div class="kicker">Ejecución</div>
+                <ul class="xlist">
+                    <li>Casos de caja negra ejecutados a mano, con evidencia (capturas)</li>
+                    <li>Sesiones exploratorias del portal</li>
+                    <li><b>Selenium</b> automatiza el flujo principal del portal: búsqueda, filtros y revisión y firma</li>
+                </ul>
+                <div class="res"><div class="t">Resultado</div><span class="todo">[COMPLETAR: aprobados / fallidos / bloqueados]</span></div>
+            </div>
+            <!-- Bloque 2: defectos en Jira -->
+            <div class="reveal d3">
+                <div class="kicker">Defectos en Jira</div>
+                <p class="xtext">Severidad según el <b>impacto clínico</b>, prioridad, evidencia y ciclo de vida.</p>
+                <p class="xsev"><span class="todo">[COMPLETAR: defectos por severidad]</span></p>
+                <div class="ficha">
+                    <div class="ficha-h">Defecto de ejemplo</div>
+                    <dl>
+                        <div><dt>ID</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
+                        <div><dt>Título</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
+                        <div><dt>Severidad</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
+                        <div><dt>Prioridad</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
+                        <div><dt>Evidencia</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
+                        <div><dt>Estado</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
+                    </dl>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="results reveal d4">
-        <div class="res"><div><div class="t">Ejecución de casos</div><div class="goal">aprobados / fallidos / bloqueados</div></div><span class="todo">[COMPLETAR: aprobados / fallidos / bloqueados]</span></div>
-        <div class="res"><div><div class="t">Defectos</div><div class="goal">por severidad</div></div><span class="todo">[COMPLETAR: defectos por severidad]</span></div>
     </div>
     <div class="presenter">Presenta: Kalil</div>
 </section>
 
 <!-- ===================================================
-     SLIDE 10 · Métricas, conclusiones, recomendación · Kiara (en curso)
+     SLIDE 12 · Resultados frente a los criterios de salida · Kiara (en curso)
      =================================================== -->
-<section class="slide s10">
-    <div class="top"><span>Conclusiones</span><span class="right"><span class="tag-curso">En curso</span><span class="num">10 / 10</span></span></div>
+<section class="slide s12">
+    <div class="top"><span>Resultados</span><span class="right"><span class="tag-curso">En curso</span><span class="num">12 / 13</span></span></div>
     <div class="bar"></div>
-    <h2 class="h2 reveal">¿Liberamos <span>la 4.2.0?</span></h2>
-    <div class="kpi reveal d1">
-        <div class="kicker">KPIs vs criterios de salida · modelo simulado</div>
-        <table class="grid">
-            <thead><tr><th>KPI</th><th>Objetivo</th><th>Resultado</th></tr></thead>
+    <h2 class="h2 reveal">Resultados frente a <span>los criterios de salida</span></h2>
+    <div class="kpis reveal d1">
+        <table>
+            <thead><tr><th>KPI</th><th>Objetivo</th><th>Resultado</th><th>¿Cumple?</th></tr></thead>
             <tbody>
-                <tr><td>Sensibilidad</td><td>≥ 98 %</td><td><span class="todo">[COMPLETAR]</span></td></tr>
-                <tr><td>Patogénicas como benignas</td><td>≤ 1 %</td><td><span class="todo">[COMPLETAR]</span></td></tr>
-                <tr><td>Concordancia</td><td>≥ 95 %</td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr class="grp"><td colspan="4">Modelo (simulado)</td></tr>
+                <tr><td class="nm">Sensibilidad</td><td>≥ 98 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Patogénicas como benignas</td><td>≤ 1 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Concordancia</td><td>≥ 95 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr class="grp"><td colspan="4">Proceso</td></tr>
+                <tr><td class="nm">Casos P1 y P2 aprobados</td><td>100 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Defectos críticos o altos abiertos</td><td>0</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Cobertura JaCoCo</td><td>≥ 80 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Puntaje de mutación PIT</td><td>≥ 75 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr class="grp"><td colspan="4">Rendimiento</td></tr>
+                <tr><td class="nm">Búsqueda en el portal</td><td>&lt; 3 s</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Procesamiento por muestra<small>Nuestra implementación no procesa archivos del secuenciador</small></td><td>&lt; 2 h</td><td>No medible</td><td><span class="sem na">–</span></td></tr>
             </tbody>
         </table>
     </div>
-    <div class="lim reveal d2">
-        <div class="kicker">Limitaciones</div>
-        <ul>
-            <li>Independencia parcial: la implementación es nuestra</li>
-            <li>Sin pruebas de carga ni de disponibilidad</li>
-            <li>Sin el modelo de IA real</li>
-        </ul>
+    <div class="presenter">Presenta: Kiara</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 13 · ¿Liberamos la 4.2.0? (cierre) · Kiara (en curso)
+     =================================================== -->
+<section class="slide s13">
+    <div class="top"><span>Conclusiones</span><span class="right"><span class="tag-curso">En curso</span><span class="num">13 / 13</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">¿Liberamos <span>la 4.2.0?</span></h2>
+    <div class="reco13 reveal d1">
+        <div class="k">Recomendación</div>
+        <div class="main"><span class="todo">[COMPLETAR: liberar / liberar con condiciones / no liberar]</span></div>
+        <div class="why"><span class="todo">[COMPLETAR: 2 o 3 razones, según la regla de liberación del Definition of Done]</span></div>
     </div>
-    <div class="reco reveal d4">
-        <span class="k">Recomendación</span>
-        <span class="todo">[COMPLETAR: liberar / liberar con condiciones / no liberar, y por qué]</span>
+    <div class="lim13 reveal d3">
+        <div class="kicker">Riesgos residuales y limitaciones</div>
+        <ul>
+            <li>Independencia parcial: la implementación de referencia es nuestra.</li>
+            <li>Recibimos la calidad, la cobertura y la contaminación ya calculadas: si el sistema real las calculara mal, no lo detectaríamos.</li>
+            <li>Sin el modelo de IA real ni pruebas de carga o disponibilidad.</li>
+        </ul>
     </div>
     <div class="ia">El uso de IA en este trabajo está declarado y documentado.</div>
     <div class="presenter">Presenta: Kiara</div>

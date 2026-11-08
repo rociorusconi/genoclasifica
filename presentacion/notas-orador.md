@@ -4,46 +4,61 @@
 
 | Integrante | Slides | Tiempo por slide | Total |
 |---|---|---|---|
-| Kiara Precopio | 1, 2, 3 y 10 | ~1 min 15 s | 5 min |
-| Rocío Rusconi | 4, 5 y 6 | ~1 min 40 s | 5 min |
-| Kalil Yasin | 7, 8 y 9 | ~1 min 40 s | 5 min |
+| Kiara Precopio | 1, 2, 3, 4, 5, 12 y 13 | ~40 s (portada ~30 s, slide 3 ~50 s, cierre ~1 min) | 5 min |
+| Rocío Rusconi | 6, 7 y 8 | ~1 min 40 s | 5 min |
+| Kalil Yasin | 9, 10 y 11 | ~1 min 40 s | 5 min |
 
-> Kiara tiene 4 slides, así que las suyas van un poco más rápidas para que el reparto quede parejo. La slide 9 quedó asignada a Kalil para equilibrar los tiempos. Si prefieren que la presente Rocío, hay que cambiar el texto "Presenta: Kalil" en la slide 9.
+> Kiara tiene 7 slides, así que las suyas van más rápidas para que el reparto quede parejo. La slide 11 quedó asignada a Kalil para equilibrar los tiempos. Si prefieren que la presente Rocío, hay que cambiar el texto "Presenta: Kalil" en la slide 11.
 
 > Los puntos marcados con **⚠ Revisar** son cosas que conviene confirmar antes de exponer.
 
 ---
 
-## Slide 1: Portada y problema (Kiara, ~1:15)
+## Slide 1: Portada (Kiara, ~0:30)
 
 - Presentarnos: somos un equipo de QA independiente. Nuestro trabajo es recomendar si la versión 4.2.0 de GenoClasifica se libera, se libera con condiciones o no se libera.
-- Qué es GenoClasifica: un sistema de IA que usa un laboratorio de genómica clínica (LGCA). Para cada variante genética, la IA propone una de cinco categorías (benigna, probablemente benigna, significado incierto, probablemente patogénica o patogénica) junto con su nivel de confianza. Después un genetista revisa, firma, y recién entonces se emite el informe PDF.
+- Qué es GenoClasifica: un sistema de IA que usa un laboratorio de genómica clínica (LGCA). Para cada variante genética, la IA propone una de cinco categorías (benigna, probablemente benigna, significado incierto, probablemente patogénica o patogénica) junto con su nivel de confianza.
+- La IA propone, pero no decide sola: un genetista revisa, firma, y recién entonces se emite el informe PDF.
+
+## Slide 2: Qué cambia y qué está en juego (Kiara, ~0:40)
+
 - Qué trae la 4.2.0: un modelo nuevo para inserciones y deleciones, bases de datos actualizadas, informes automáticos y una API nueva para conectarse con el LIMS.
 - Por qué importa tanto probarlo bien: el riesgo es clínico. Un falso negativo puede dejar a un paciente sin seguimiento. Un falso positivo puede llevar a estudios o incluso cirugías que no hacían falta.
-- Pase: "Con esto en mente, les cuento qué decidimos probar y cómo."
+- Pase: "Antes de contarles qué probamos, veamos cómo funciona el sistema."
 
-## Slide 2: Alcance y estrategia (Kiara, ~1:15)
+## Slide 3: Cómo funciona GenoClasifica (Kiara, ~0:50)
 
-- Primero, una decisión clave: no tenemos el código ni el modelo real. Por eso armamos una implementación de referencia propia en Java 21 con Spring Boot, que cumple las reglas RF-01 a RF-10.
+- Recorrer el flujo de izquierda a derecha: el secuenciador genera los datos, se hace un control de calidad, se detectan las variantes, se anotan con bases públicas, el modelo de IA propone una categoría con su confianza, el genetista revisa y firma, y se emite el informe PDF.
+- Además, el LIMS del laboratorio se conecta con GenoClasifica a través de una API REST, en ambos sentidos.
+- Lo importante de esta slide es qué parte cubre nuestra implementación de referencia, marcada con la barra roja:
+  - El **control de calidad**, con las reglas de Q30, cobertura y contaminación, aplicadas sobre valores sintéticos.
+  - Todo lo que va **desde el modelo de IA hasta el informe PDF**.
+  - La **API REST** con el LIMS.
+- Las etapas en gris punteado (secuenciador, detección de variantes y anotación) quedan fuera de alcance: los valores y las variantes nos llegan ya calculados en un JSON.
+- Pase: "Con esto claro, les cuento qué decidimos probar y cómo."
+
+## Slide 4: Alcance y estrategia (Kiara, ~0:40)
+
+- Primero, una decisión clave: no tenemos el código ni el modelo real. Por eso armamos una implementación de referencia propia en Java 21 con Spring Boot, que cumple las reglas RF-01 a RF-10. (Como ya se vio en la slide 3 qué parte cubre, acá alcanza con decirlo rápido.)
 - La IA está simulada: nosotros elegimos la categoría y la confianza. Por eso nuestras conclusiones valen para las reglas y para nuestra implementación, no para el modelo real.
 - Usamos solo datos sintéticos, por las leyes 25.326 (datos personales) y 26.529 (derechos del paciente).
 - Dentro del alcance: las reglas, la API, la revisión y firma, el informe y un portal mínimo. Fuera: el modelo real, carga y disponibilidad, producción y datos reales.
 - La tabla resume la estrategia: qué probamos, en qué nivel, con qué técnica y con qué herramienta. No hace falta leerla entera; alcanza con remarcar que combinamos pruebas unitarias, de integración, de aceptación y de sistema.
 - **⚠ Revisar:** la columna "Dentro / Fuera" y la asignación de técnicas en la tabla son una síntesis armada a partir del contenido. Confirmen que coinciden con el plan de pruebas.
 
-## Slide 3: Riesgos y criterios (Kiara, ~1:15)
+## Slide 5: Riesgos y criterios (Kiara, ~0:40)
 
-- Priorizamos por riesgo clínico. Los cuatro principales:
-  - **R-01:** la IA da un falso negativo. Es el más grave.
-  - **R-02:** fallas de calidad o bloqueo de la muestra.
-  - **R-03:** se emite un informe sin firma del genetista.
-  - **R-05:** seguridad y trazabilidad.
-- La decisión de liberar se toma con una regla basada en nuestro Definition of Done: liberar, liberar con condiciones o no liberar.
-- Entornos: desarrollo, QA y staging, separados con perfiles de Spring Boot. Producción solo la describimos, no la probamos.
-- **⚠ Revisar:** las condiciones de la regla de liberación quedaron como [COMPLETAR], porque el texto del DoD no estaba en el contenido. Hay que copiarlas del plan.
+- Priorizamos por riesgo clínico. La matriz tiene 7 riesgos, ordenados de mayor a menor prioridad.
+- Los marcados en rojo son P1 (R-01 a R-05). El más grave es **R-01**: que la IA clasifique una patogénica como benigna, es decir, un falso negativo.
+- No hace falta leer los 7: alcanza con nombrar R-01 y decir que los P1 son los que probamos primero y con más profundidad.
+- Regla de liberación, basada en el Definition of Done:
+  - **Liberar:** se cumple todo el DoD.
+  - **Liberar con condiciones:** solo quedan defectos de severidad media o baja, con plan de corrección y fecha.
+  - **No liberar:** hay un defecto crítico o alto abierto, falla una métrica del modelo o quedan casos P1 sin ejecutar.
+- Probamos en tres entornos (desarrollo, QA y staging) con perfiles de Spring Boot; producción solo se describe.
 - Pase a Rocío: "Ahora Rocío les cuenta cómo pasamos de los requisitos a los casos de prueba."
 
-## Slide 4: Análisis de requerimientos y valores límite (Rocío, ~1:40)
+## Slide 6: Análisis de requerimientos y valores límite (Rocío, ~1:40)
 
 - Al leer los requisitos encontramos frases ambiguas. En lugar de adivinar, dejamos el supuesto por escrito:
   - "Menos de 80 %" lo tomamos como estricto: 80,0 % ya alcanza.
@@ -53,56 +68,73 @@
 - La regla más importante: nunca se puede clasificar como benigna con confianza menor a 70 %. Ahí es donde un error se convierte en un falso negativo.
 - Idea para remarcar: los errores suelen estar en los bordes, y por eso probamos ahí.
 
-## Slide 5: Transición de estados (Rocío, ~1:40)
+## Slide 7: Cómo diseñamos los casos (Rocío, ~1:40)
+
+- No usamos una sola técnica para todo: elegimos la técnica según el tipo de regla que queríamos probar.
+  - Si la regla tiene **umbrales numéricos** (como Q30), usamos partición de equivalencia y valores límite.
+  - Si combina **varias condiciones** (como la emisión del informe), usamos tablas de decisión.
+  - Si depende del **estado en que está la muestra**, usamos transición de estados.
+  - Si hay **muchos parámetros combinados**, usamos pairwise para no probar todas las combinaciones: de 54 bajamos a 9.
+  - Con caja gris aprovechamos que conocemos parte de la implementación, por ejemplo para verificar que el hash del PDF emitido no cambie.
+- Las filas en rojo (valores límite y caja blanca) usan la misma regla de Q30. Es el hilo que retoma Kalil en la slide de caja blanca.
+- No hace falta leer la tabla entera: el detalle de cada caso está en el informe.
+- Pase: "Les muestro una de estas técnicas en detalle: la transición de estados."
+
+## Slide 8: Transición de estados (Rocío, ~1:40)
 
 - Modelamos el ciclo de vida de la muestra como una máquina de estados: Recibida, Clasificada, Pendiente de firma, Firmada, Informe emitido y, si cambia la clasificación, Reclasificación notificada.
 - También hay salidas: Bloqueada (por contaminación), Calidad insuficiente (por Q30 bajo) y Rechazada.
 - No solo probamos las transiciones válidas, también las inválidas. Ejemplo: pedir el PDF sin firma. El sistema tiene que rechazar el pedido, y la muestra tiene que seguir en "Pendiente de firma". Esto cubre directamente el riesgo R-03.
 - **⚠ Revisar:** en el diagrama, "Rechazada" sale de "Pendiente de firma". Confirmen que ese es el estado de origen correcto en su modelo; si no, hay que mover la flecha.
-
-## Slide 6: Tablas de decisión, caja gris y pairwise (Rocío, ~1:40)
-
-- **Tabla de decisión:** para emitir el informe miramos tres condiciones (si la muestra fue aceptada, si hay variantes patogénicas y si hay firma). Sin muestra aceptada o sin firma, el informe no se emite.
-- **Caja gris:** como conocemos parte de la implementación, verificamos que el hash del PDF original no cambie después de una reclasificación. El informe que ya se emitió no se modifica.
-- **Pairwise:** de 54 combinaciones posibles de parámetros bajamos a 9 casos, un 83 % menos, y cada par de valores sigue cubierto.
-- **⚠ Revisar:** las filas de la tabla de decisión las armé suponiendo que la firma es obligatoria siempre y que las variantes patogénicas no cambian la emisión. Compárenlas con su tabla real y corrijan si su tabla distingue ese caso.
 - Pase a Kalil: "Kalil les muestra la parte técnica: caja blanca y automatización."
 
-## Slide 7: Caja blanca (Kalil, ~1:40)
+## Slide 9: Caja blanca (Kalil, ~1:40)
 
-- Tomamos el método `esCalidadSuficiente` de la clase `ControlCalidad`, que decide si la calidad de la secuenciación (Q30) alcanza.
+- Retomamos la regla de Q30 de la slide del mapa. Tomamos el método `esCalidadSuficiente` de la clase `ControlCalidad`, que decide si la calidad de la secuenciación (Q30) alcanza.
 - Tiene 3 caminos independientes:
   - **C1:** Q30 inválido (nulo, negativo o mayor a 100) → lanza excepción.
   - **C2:** Q30 menor a 80 → calidad insuficiente.
   - **C3:** Q30 mayor o igual a 80 → calidad suficiente.
-- Escribimos tests para cubrir cada camino y los bordes. Están todos en verde y JaCoCo marca 100 % de líneas y de ramas.
+- La conclusión principal está abajo: los casos de caja negra de Q30 (CP-Q30-01 a 08) ya recorren el 100 % del método. No hizo falta agregar casos nuevos. JaCoCo marca 100 % de líneas y de ramas.
 - La clase se hizo con TDD: primero el test en rojo, después el código mínimo para pasarlo y después el refactor.
-- **⚠ Revisar:** en el repo, `ControlCalidadTest.java` tiene **8** métodos `@Test` (CP-Q30-01 a 08), no 9. Confirmen el número antes de exponer. También conviene volver a correr `mvnw test jacoco:report` para tener a mano el reporte del 100 %.
+- **⚠ Revisar:** el indicador de la slide dice "9 tests en verde", pero la frase destacada nombra los casos CP-Q30-01 a 08, y en el repo `ControlCalidadTest.java` tiene **8** tests. Así como está, la slide se contradice. Corrijan el 9 o expliquen de dónde sale el noveno. También conviene volver a correr `mvnw test jacoco:report` para tener a mano el reporte del 100 %.
 
-## Slide 8: Automatización, BDD y mutación (Kalil, ~1:40) · EN CURSO
+## Slide 10: Pruebas automatizadas (Kalil, ~1:40) · EN CURSO
 
-- **Cucumber (BDD):** escenarios Given-When-Then para la revisión y firma y para el umbral de confianza. Sirven como documentación que entiende alguien que no programa.
-- **Postman:** colección para la API (login, permisos por rol y datos inválidos o repetidos).
-- **JUnit 5:** suite de regresión, con evidencia de red-green-refactor en los commits.
-- **PIT (mutación):** cambia el código a propósito para ver si los tests lo detectan. Mide si los tests realmente verifican algo o solo pasan por el código.
-- Resultados: cobertura total [COMPLETAR] contra un objetivo de 80 %, y puntaje de mutación [COMPLETAR] contra un objetivo de 75 %.
+- **Qué automatizamos:**
+  - **JUnit 5 + Spring Boot Test:** pruebas unitarias, de integración y de regresión.
+  - **Postman:** la API (login, permisos por rol y datos inválidos o repetidos).
+  - **Cucumber:** escenarios Given-When-Then de revisión y firma, y del umbral de confianza. Sirven como documentación que entiende alguien que no programa.
+- **Idea central:** no alcanza con que los tests pasen; con JaCoCo y PIT medimos si realmente detectan errores.
+  - **JaCoCo** mide cuánto código recorren los tests (objetivo 80 %). Resultado: [COMPLETAR].
+  - **PIT** cambia el código a propósito (mutantes) y mira si algún test falla. Si ningún test falla, ese test no estaba verificando nada (objetivo 75 %). Resultado: [COMPLETAR].
+- Qué no automatizamos y por qué: [COMPLETAR: criterio].
 - Si todavía no hay datos el día de la exposición, decirlo tal cual: "esto está en curso".
 
-## Slide 9: Pruebas manuales, portal y defectos (Kalil, ~1:40) · EN CURSO
+## Slide 11: Ejecución manual y defectos (Kalil, ~1:40) · EN CURSO
 
-- **Exploratorias:** sesiones sobre el portal mínimo, buscando lo que no está escrito en los casos.
-- **Selenium:** automatizamos el flujo principal del portal de punta a punta.
-- **Jira:** proyecto GCL con un tablero Kanban y 5 épicas. La severidad de cada defecto se define por su impacto clínico, no solo técnico.
-- Resultados: casos aprobados, fallidos y bloqueados [COMPLETAR], y defectos por severidad [COMPLETAR].
+- **Ejecución:**
+  - Ejecutamos a mano los casos de caja negra y guardamos evidencia con capturas.
+  - Hicimos sesiones exploratorias del portal, buscando lo que no está escrito en los casos.
+  - Selenium automatiza el flujo principal del portal: búsqueda, filtros y revisión y firma.
+  - Resultado: aprobados / fallidos / bloqueados [COMPLETAR].
+- **Defectos en Jira:** la severidad de cada defecto se define por su impacto clínico, no solo técnico. Cada defecto tiene además prioridad, evidencia y un ciclo de vida. Defectos por severidad: [COMPLETAR].
+- Mostrar un defecto real en Jira durante la exposición: cómo se reportó, qué severidad le dimos y por qué. La ficha de la slide sirve de guía: ID, título, severidad, prioridad, evidencia y estado.
 - Pase a Kiara: "Kiara cierra con las métricas y nuestra recomendación."
 
-## Slide 10: Métricas, conclusiones y recomendación (Kiara, ~1:15) · EN CURSO
+## Slide 12: Resultados frente a los criterios de salida (Kiara, ~0:40) · EN CURSO
 
-- Comparamos los KPIs con los criterios de salida: sensibilidad ≥ 98 %, patogénicas clasificadas como benignas ≤ 1 % y concordancia ≥ 95 %. Aclarar que se midieron sobre el modelo simulado.
-- Limitaciones, dichas con honestidad:
-  - La independencia es parcial, porque la implementación la hicimos nosotros.
-  - No hicimos pruebas de carga ni de disponibilidad.
-  - No probamos el modelo real.
-- Recomendación: [COMPLETAR: liberar, liberar con condiciones o no liberar, y por qué].
+- Mencionar solo qué cumple y qué no; el detalle ya se explicó antes.
+- Aclarar que los KPIs del modelo se midieron sobre el modelo simulado.
+- "Procesamiento por muestra < 2 h" no es medible, porque nuestra implementación no procesa archivos del secuenciador.
+
+## Slide 13: ¿Liberamos la 4.2.0? (Kiara, ~1:00) · EN CURSO
+
+- Recomendación: [COMPLETAR: liberar / liberar con condiciones / no liberar].
+- Conectar la recomendación con la regla de liberación de la slide de riesgos (slide 5): decir qué condición del Definition of Done se cumple o no se cumple, y por eso la decisión.
+- Riesgos residuales y limitaciones, dichos con honestidad:
+  - La independencia es parcial, porque la implementación de referencia la hicimos nosotros.
+  - Recibimos la calidad, la cobertura y la contaminación ya calculadas: si el sistema real las calculara mal, no lo detectaríamos.
+  - No probamos el modelo de IA real ni hicimos pruebas de carga o disponibilidad.
 - Cerrar mencionando que el uso de IA en el trabajo está declarado y documentado.
 - Cierre: "Gracias. ¿Preguntas?"
