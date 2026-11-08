@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GenoClasifica 4.2.0 · TPI Verificación y Validación de Software</title>
+
+<!-- Fuentes: Archivo (títulos), Nunito (texto), JetBrains Mono (código) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================
+   TEMA (Swiss Modern)
+   Cambiá estas variables para cambiar el look completo
+   =========================================== */
+:root {
+    --stage-bg: #e9e9e6;
+    --slide-bg: #ffffff;
+    --ink: #111111;
+    --muted: #6b6b6b;
+    --soft: #f3f3f1;
+    --red: #e0301e;
+    --red-soft: #fdeeec;
+    --grid: rgba(0, 0, 0, 0.055);
+
+    --font-display: 'Archivo', sans-serif;
+    --font-body: 'Nunito', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+code, pre, .code, .hash, .todo { font-variant-ligatures: none !important; font-feature-settings: "liga" 0, "calt" 0 !important; }
+:root {
+
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   (viewport-base.css completo)
+   =========================================== */
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg, #000); }
+.deck-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0; background: var(--slide-bg, #fff); }
+.slide { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; display: block; visibility: hidden; opacity: 0; pointer-events: none; background: var(--slide-bg, #fff); }
+.slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+.deck-controls { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 1000; }
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide { position: relative; display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; width: 1920px; height: 1080px; break-after: page; page-break-after: always; }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+
+/* ===========================================
+   BASE DE SLIDE: grilla suiza de fondo
+   =========================================== */
+.slide {
+    font-family: var(--font-body);
+    color: var(--ink);
+    background-color: var(--slide-bg);
+    background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 160px 160px;
+    background-position: -1px -1px;
+    transition: opacity 0.4s ease;
+}
+
+/* ===========================================
+   CHROME: encabezado, número, presentador, "En curso"
+   =========================================== */
+.top {
+    position: absolute; left: 160px; right: 160px; top: 64px;
+    display: flex; justify-content: space-between; align-items: center;
+    font: 700 20px var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); height: 44px;
+}
+.top .right { display: flex; gap: 24px; align-items: center; }
+.top .num { color: var(--ink); }
+.tag-curso {
+    border: 2px solid var(--red); color: var(--red);
+    padding: 6px 16px; border-radius: 100px; letter-spacing: 0.1em; font-size: 17px;
+}
+.presenter {
+    position: absolute; right: 160px; bottom: 48px;
+    font: 600 20px var(--font-body); color: var(--muted);
+}
+.presenter::before { content: ""; display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 12px; vertical-align: 2px; }
+
+/* Barra roja vertical: firma visual del sistema */
+.bar { position: absolute; left: 160px; top: 160px; width: 14px; height: 140px; background: var(--red); transform-origin: top; }
+.slide.visible .bar { animation: grow 0.8s var(--ease) both; }
+
+/* Título de cada slide de contenido */
+.h2 {
+    position: absolute; left: 216px; top: 150px; right: 160px;
+    font: 800 84px/1 var(--font-display); letter-spacing: -0.035em;
+}
+.h2 span { color: var(--red); }
+.lead { position: absolute; left: 216px; top: 252px; font-size: 30px; color: var(--muted); }
+
+/* Área de contenido estándar debajo del título */
+.body { position: absolute; left: 160px; right: 160px; top: 340px; bottom: 120px; }
+
+/* Etiqueta de sección pequeña */
+.kicker { font: 700 20px var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+
+/* Marcador de dato pendiente: debe verse claramente */
+.todo {
+    display: inline-block; background: var(--red-soft); color: var(--red);
+    border: 2px dashed var(--red); padding: 4px 14px; border-radius: 6px;
+    font: 600 0.8em var(--font-mono);
+}
+
+/* ===========================================
+   ANIMACIONES: aparición escalonada al entrar
+   =========================================== */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.6s var(--ease), transform 0.6s var(--ease); }
+.slide.visible .reveal { opacity: 1; transform: none; }
+.d1 { transition-delay: 0.08s; } .d2 { transition-delay: 0.16s; } .d3 { transition-delay: 0.24s; }
+.d4 { transition-delay: 0.32s; } .d5 { transition-delay: 0.40s; } .d6 { transition-delay: 0.48s; }
+@keyframes grow { from { transform: scaleY(0); } }
+
+/* ===========================================
+   SLIDE 1: PORTADA + PROBLEMA
+   =========================================== */
+.s1 .bar { height: 420px; }
+.s1 h1 { position: absolute; left: 216px; top: 140px; font: 800 168px/0.9 var(--font-display); letter-spacing: -0.045em; }
+.s1 h1 span { color: var(--red); }
+.s1 .q { position: absolute; left: 216px; top: 470px; width: 1000px; font: 700 46px/1.15 var(--font-display); letter-spacing: -0.02em; }
+.s1 .what { position: absolute; left: 216px; top: 600px; width: 860px; font-size: 28px; line-height: 1.45; color: var(--muted); }
+.s1 .news { position: absolute; left: 1200px; top: 170px; width: 560px; }
+.s1 .news li { list-style: none; display: flex; gap: 22px; padding: 20px 0; border-bottom: 2px solid var(--ink); font-size: 28px; line-height: 1.3; }
+.s1 .news li b { font: 800 28px var(--font-display); color: var(--red); min-width: 40px; }
+.s1 .risk { position: absolute; left: 160px; right: 160px; top: 770px; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.s1 .risk > div { padding: 30px 40px; font-size: 30px; line-height: 1.3; }
+.s1 .risk .neg { background: var(--ink); color: #fff; }
+.s1 .risk .pos { background: var(--soft); }
+.s1 .risk b { display: block; font: 800 34px var(--font-display); margin-bottom: 6px; }
+.s1 .risk .neg b { color: #ff6a57; }
+.s1 .team { position: absolute; left: 160px; bottom: 48px; font-size: 20px; color: var(--muted); }
+.s1 .team b { color: var(--ink); font-weight: 700; }
+
+/* ===========================================
+   SLIDE 2: ALCANCE Y ESTRATEGIA
+   =========================================== */
+.s2 .left { position: absolute; left: 160px; top: 340px; width: 600px; }
+.note { border-left: 8px solid var(--red); background: var(--soft); padding: 20px 26px; font-size: 23px; line-height: 1.4; margin-bottom: 30px; }
+.note b { font-family: var(--font-display); }
+.inout { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.inout ul { list-style: none; }
+.inout li { font-size: 23px; line-height: 1.3; padding: 9px 0; border-bottom: 1px solid #ddd; }
+.inout .in li::before { content: "✓ "; color: var(--ink); font-weight: 700; }
+.inout .out li { color: var(--muted); }
+.inout .out li::before { content: "✕ "; color: var(--red); font-weight: 700; }
+
+table.grid { border-collapse: collapse; width: 100%; font-size: 23px; }
+table.grid th { text-align: left; font: 700 18px var(--font-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 0 16px 14px; border-bottom: 3px solid var(--ink); }
+table.grid td { padding: 15px 16px; border-bottom: 1px solid #d6d6d6; vertical-align: top; line-height: 1.25; }
+table.grid td:first-child { font-weight: 700; }
+.s2 .tablecol { position: absolute; left: 840px; right: 160px; top: 340px; }
+
+/* ===========================================
+   SLIDE 3: RIESGOS Y CRITERIOS
+   =========================================== */
+.risks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.risk-card { border-top: 10px solid var(--ink); background: var(--soft); padding: 26px 28px 30px; min-height: 230px; }
+.risk-card.hot { border-top-color: var(--red); }
+.risk-card .id { font: 800 46px var(--font-display); letter-spacing: -0.02em; }
+.risk-card.hot .id { color: var(--red); }
+.risk-card p { font-size: 26px; line-height: 1.3; margin-top: 10px; }
+.s3 .row2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 64px; margin-top: 48px; }
+.rule li { list-style: none; display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: center; padding: 14px 0; border-bottom: 1px solid #d6d6d6; font-size: 24px; }
+.rule li b { font: 800 26px var(--font-display); }
+.rule li:nth-child(1) b { color: var(--ink); }
+.rule li:nth-child(3) b { color: var(--red); }
+.envs { display: flex; gap: 12px; flex-wrap: wrap; }
+.env { border: 3px solid var(--ink); padding: 14px 22px; font: 700 26px var(--font-display); }
+.env.ghost { border-style: dashed; color: var(--muted); border-color: var(--muted); }
+.envs + p { margin-top: 16px; font-size: 22px; color: var(--muted); }
+
+/* ===========================================
+   SLIDE 4: AMBIGÜEDADES + VALORES LÍMITE
+   =========================================== */
+.s4 .amb { position: absolute; left: 160px; top: 340px; width: 780px; }
+.amb-row { display: grid; grid-template-columns: 1fr 50px 1fr; align-items: center; padding: 22px 0; border-bottom: 2px solid var(--ink); }
+.amb-row .says { font: 700 32px var(--font-display); }
+.amb-row .arrow { color: var(--red); font: 800 34px var(--font-display); }
+.amb-row .assume { font-size: 27px; line-height: 1.3; }
+.s4 .bva { position: absolute; left: 1060px; right: 160px; top: 340px; }
+.line { position: relative; height: 300px; margin-top: 20px; }
+.line .axis { position: absolute; left: 0; right: 0; top: 120px; height: 4px; background: var(--ink); }
+.line .zone-bad { position: absolute; left: 0; width: 50%; top: 108px; height: 28px; background: var(--red-soft); border: 2px solid var(--red); }
+.line .zone-ok { position: absolute; left: 50%; right: 0; top: 108px; height: 28px; background: var(--soft); border: 2px solid var(--ink); border-left: none; }
+.tick { position: absolute; top: 0; width: 180px; margin-left: -90px; text-align: center; }
+.tick .v { font: 800 44px var(--font-display); letter-spacing: -0.02em; }
+.tick .pin { width: 4px; height: 70px; background: var(--ink); margin: 6px auto 0; }
+.tick .r { margin-top: 70px; font-size: 22px; line-height: 1.25; }
+.tick.bad .v, .tick.bad .r { color: var(--red); }
+.tick.bad .pin { background: var(--red); }
+.rule-box { margin-top: 50px; background: var(--ink); color: #fff; padding: 26px 34px; font: 700 34px/1.2 var(--font-display); }
+.rule-box span { color: #ff6a57; }
+
+/* ===========================================
+   SLIDE 5: TRANSICIÓN DE ESTADOS
+   =========================================== */
+.flow { position: absolute; left: 160px; right: 160px; top: 380px; height: 380px; }
+.flow svg { width: 1600px; height: 380px; overflow: visible; }
+.st { font-family: var(--font-display); font-weight: 700; }
+.invalid { position: absolute; left: 160px; right: 160px; bottom: 120px; display: grid; grid-template-columns: auto 1fr; gap: 36px; align-items: center; border: 3px solid var(--red); padding: 24px 34px; }
+.invalid .x { font: 800 30px var(--font-display); color: #fff; background: var(--red); padding: 10px 20px; }
+.invalid p { font-size: 28px; line-height: 1.35; }
+.invalid code { font-family: var(--font-mono); font-size: 0.9em; background: var(--soft); padding: 2px 8px; }
+
+/* ===========================================
+   SLIDE 6: DECISIÓN, CAJA GRIS, PAIRWISE
+   =========================================== */
+.three { display: grid; grid-template-columns: 1.5fr 1fr 0.9fr; gap: 56px; height: 100%; }
+.dt td, .dt th { text-align: center !important; }
+.dt td:first-child { font-weight: 400 !important; }
+.yes { font-weight: 800; }
+.no { color: var(--red); font-weight: 800; }
+.hash { font-family: var(--font-mono); font-size: 22px; background: var(--soft); padding: 18px 20px; line-height: 1.7; }
+.hash .eq { color: var(--red); font-weight: 600; }
+.big-num { font: 800 150px/0.9 var(--font-display); letter-spacing: -0.05em; }
+.big-num span { color: var(--red); }
+.cap { font-size: 26px; line-height: 1.35; margin-top: 18px; }
+.pct { display: inline-block; margin-top: 26px; background: var(--red); color: #fff; font: 800 36px var(--font-display); padding: 10px 22px; }
+
+/* ===========================================
+   SLIDE 7: CAJA BLANCA
+   =========================================== */
+.code {
+    position: absolute; left: 160px; top: 340px; width: 960px;
+    background: #141414; color: #e8e8e8; padding: 34px 40px;
+    font: 400 24px/1.65 var(--font-mono);
+}
+.code .k { color: #ff8a7a; } .code .c { color: #8a8a8a; } .code .n { color: #9fd3ff; }
+.code .path { display: inline-block; background: var(--red); color: #fff; font-weight: 600; padding: 0 10px; margin-left: 14px; font-size: 20px; }
+.paths { position: absolute; left: 160px; top: 720px; width: 960px; }
+.paths li { list-style: none; display: grid; grid-template-columns: 70px 1fr; padding: 10px 0; border-bottom: 1px solid #d6d6d6; font-size: 25px; }
+.paths li b { color: var(--red); font-family: var(--font-display); }
+.stats { position: absolute; left: 1200px; right: 160px; top: 340px; display: grid; gap: 22px; }
+.stat { border-top: 6px solid var(--ink); padding-top: 12px; }
+.stat .v { font: 800 104px/1 var(--font-display); letter-spacing: -0.04em; }
+.stat .v span { color: var(--red); }
+.stat .l { font-size: 24px; color: var(--muted); }
+.tdd { display: flex; gap: 0; margin-top: 8px; }
+.tdd div { flex: 1; text-align: center; padding: 12px 0; font: 800 22px var(--font-display); letter-spacing: 0.08em; }
+.tdd .r { background: var(--red); color: #fff; }
+.tdd .g { background: var(--ink); color: #fff; }
+.tdd .f { box-shadow: inset 0 0 0 3px var(--ink); }
+
+/* ===========================================
+   SLIDES 8-9: PLAN + RESULTADOS PENDIENTES
+   =========================================== */
+.cols4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.tool { border-top: 6px solid var(--ink); padding-top: 18px; }
+.tool .name { font: 800 36px var(--font-display); letter-spacing: -0.02em; }
+.tool .kind { font: 700 18px var(--font-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); margin: 6px 0 14px; }
+.tool p { font-size: 24px; line-height: 1.35; }
+.results { position: absolute; left: 160px; right: 160px; top: 650px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.res { background: var(--soft); padding: 26px 32px; display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+.res .t { font: 700 28px var(--font-display); }
+.res .goal { font-size: 22px; color: var(--muted); margin-top: 4px; }
+.res .todo { font-size: 22px; }
+
+/* ===========================================
+   SLIDE 10: MÉTRICAS, CONCLUSIONES, RECOMENDACIÓN
+   =========================================== */
+.s10 .kpi { position: absolute; left: 160px; top: 340px; width: 960px; }
+.s10 .kpi td:nth-child(2) { font-family: var(--font-display); font-weight: 800; white-space: nowrap; }
+.s10 .lim { position: absolute; left: 1200px; right: 160px; top: 340px; }
+.s10 .lim li { list-style: none; font-size: 24px; line-height: 1.3; padding: 12px 0; border-bottom: 1px solid #d6d6d6; }
+.s10 .lim li::before { content: "— "; color: var(--red); font-weight: 700; }
+.reco { position: absolute; left: 160px; right: 160px; top: 760px; background: var(--ink); color: #fff; padding: 30px 40px; display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
+.reco .k { font: 800 24px var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; color: #ff6a57; }
+.reco .todo { background: rgba(224,48,30,.18); color: #ffb3a8; border-color: #ff6a57; font-size: 24px; }
+.s10 .ia { position: absolute; left: 160px; bottom: 48px; font-size: 20px; color: var(--muted); }
+
+/* ===========================================
+   CONTROLES Y PROGRESO (fuera del diseño del slide)
+   =========================================== */
+.progress { position: fixed; left: 0; bottom: 0; height: 4px; background: var(--red); z-index: 1000; transition: width 0.4s var(--ease); }
+
+/* ===========================================
+   EDICIÓN EN LÍNEA (tecla E o esquina superior izquierda)
+   =========================================== */
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle { position: fixed; top: 16px; left: 16px; z-index: 10001; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    font: 700 14px var(--font-display); background: var(--ink); color: #fff; border: none; padding: 10px 14px; cursor: pointer; }
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { background: var(--red); }
+body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.45); outline-offset: 4px; }
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===================================================
+     SLIDE 1 · Portada + problema · Kiara
+     =================================================== -->
+<section class="slide s1 active">
+    <div class="top"><span>Verificación y Validación de Software · UNSAM</span><span class="right"><span class="num">01 / 10</span></span></div>
+    <div class="bar"></div>
+    <h1 class="reveal">Geno<br>Clasifica <span>4.2</span></h1>
+    <p class="q reveal d1">¿Liberar, liberar con condiciones o no liberar?</p>
+    <p class="what reveal d2">Una IA propone 1 de 5 categorías para cada variante genética, con su confianza. Un genetista revisa y firma antes de emitir el informe PDF.</p>
+    <div class="news reveal d2">
+        <div class="kicker">Qué trae la 4.2.0</div>
+        <ul>
+            <li><b>01</b>Modelo para inserciones y deleciones</li>
+            <li><b>02</b>Bases de datos actualizadas</li>
+            <li><b>03</b>Informes automáticos</li>
+            <li><b>04</b>API nueva para el LIMS</li>
+        </ul>
+    </div>
+    <div class="risk reveal d4">
+        <div class="neg"><b>Falso negativo</b>Un paciente queda sin seguimiento.</div>
+        <div class="pos"><b>Falso positivo</b>Estudios o cirugías innecesarias.</div>
+    </div>
+    <div class="team"><b>Kiara Precopio</b> · <b>Rocío Rusconi</b> · <b>Kalil Yasin</b> &nbsp;— equipo de QA independiente</div>
+    <div class="presenter">Presenta: Kiara</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 2 · Alcance y estrategia · Kiara
+     =================================================== -->
+<section class="slide s2">
+    <div class="top"><span>Alcance y estrategia</span><span class="right"><span class="num">02 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Qué probamos <span>y cómo</span></h2>
+    <div class="left">
+        <div class="note reveal d1"><b>Implementación de referencia propia</b> en Java 21 + Spring Boot (RF-01 a RF-10). IA simulada. Solo datos sintéticos (leyes 25.326 y 26.529).</div>
+        <div class="inout reveal d2">
+            <div class="in"><div class="kicker">Dentro</div><ul>
+                <li>Reglas RF-01 a RF-10</li>
+                <li>API para el LIMS</li>
+                <li>Revisión y firma</li>
+                <li>Informe PDF</li>
+                <li>Portal mínimo</li>
+            </ul></div>
+            <div class="out"><div class="kicker">Fuera</div><ul>
+                <li>Modelo de IA real</li>
+                <li>Carga y disponibilidad</li>
+                <li>Producción</li>
+                <li>Datos reales</li>
+            </ul></div>
+        </div>
+    </div>
+    <div class="tablecol reveal d3">
+        <table class="grid">
+            <thead><tr><th>Qué probamos</th><th>Nivel</th><th>Técnica</th><th>Herramienta</th></tr></thead>
+            <tbody>
+                <tr><td>Reglas de negocio</td><td>Unitario</td><td>Caja blanca, valores límite, TDD</td><td>JUnit 5, JaCoCo</td></tr>
+                <tr><td>Calidad de los tests</td><td>Unitario</td><td>Mutación</td><td>PIT</td></tr>
+                <tr><td>API REST / LIMS</td><td>Integración</td><td>Caja negra y gris</td><td>Spring Boot Test, Postman</td></tr>
+                <tr><td>Revisión y firma</td><td>Aceptación</td><td>BDD</td><td>Cucumber</td></tr>
+                <tr><td>Combinaciones</td><td>Sistema</td><td>Pairwise</td><td>—</td></tr>
+                <tr><td>Portal</td><td>Sistema</td><td>Exploratoria y E2E</td><td>Selenium</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="presenter">Presenta: Kiara</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 3 · Riesgos y criterios · Kiara
+     =================================================== -->
+<section class="slide s3">
+    <div class="top"><span>Riesgos y criterios</span><span class="right"><span class="num">03 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Priorizamos por <span>riesgo clínico</span></h2>
+    <div class="body">
+        <div class="risks">
+            <div class="risk-card hot reveal d1"><div class="id">R-01</div><p>La IA da un falso negativo</p></div>
+            <div class="risk-card reveal d2"><div class="id">R-02</div><p>Fallas de calidad o bloqueo de la muestra</p></div>
+            <div class="risk-card hot reveal d3"><div class="id">R-03</div><p>Se emite un informe sin firma</p></div>
+            <div class="risk-card reveal d4"><div class="id">R-05</div><p>Seguridad y trazabilidad</p></div>
+        </div>
+        <div class="row2">
+            <div class="reveal d5">
+                <div class="kicker">Regla de liberación · Definition of Done</div>
+                <ul class="rule">
+                    <li><b>Liberar</b><span class="todo">[COMPLETAR: condición según DoD]</span></li>
+                    <li><b>Liberar con condiciones</b><span class="todo">[COMPLETAR: condición según DoD]</span></li>
+                    <li><b>No liberar</b><span class="todo">[COMPLETAR: condición según DoD]</span></li>
+                </ul>
+            </div>
+            <div class="reveal d6">
+                <div class="kicker">Entornos · perfiles de Spring Boot</div>
+                <div class="envs"><span class="env">Desarrollo</span><span class="env">QA</span><span class="env">Staging</span><span class="env ghost">Producción</span></div>
+                <p>Producción solo se describe, no se prueba.</p>
+            </div>
+        </div>
+    </div>
+    <div class="presenter">Presenta: Kiara</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 4 · Requerimientos y valores límite · Rocío
+     =================================================== -->
+<section class="slide s4">
+    <div class="top"><span>Análisis de requerimientos</span><span class="right"><span class="num">04 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Ambigüedad → <span>supuesto escrito</span></h2>
+    <div class="amb">
+        <div class="kicker reveal d1">El requisito dice → nuestro supuesto</div>
+        <div class="amb-row reveal d1"><span class="says">“menos de 80 %”</span><span class="arrow">→</span><span class="assume">Es estricto: 80,0 % ya alcanza</span></div>
+        <div class="amb-row reveal d2"><span class="says">3 % de contaminación</span><span class="arrow">→</span><span class="assume">No bloquea la muestra</span></div>
+        <div class="amb-row reveal d3"><span class="says">70 % de confianza</span><span class="arrow">→</span><span class="assume">Sí clasifica</span></div>
+    </div>
+    <div class="bva reveal d3">
+        <div class="kicker">Valores límite · umbral de confianza</div>
+        <div class="line">
+            <div class="axis"></div>
+            <div class="zone-bad"></div><div class="zone-ok"></div>
+            <div class="tick bad" style="left:16%"><div class="v">69,9</div><div class="pin"></div><div class="r">No puede ser benigna</div></div>
+            <div class="tick" style="left:50%"><div class="v">70,0</div><div class="pin"></div><div class="r">Clasifica</div></div>
+            <div class="tick" style="left:84%"><div class="v">70,1</div><div class="pin"></div><div class="r">Clasifica</div></div>
+        </div>
+        <div class="rule-box">Nunca <span>benigna</span> con confianza menor a 70 %</div>
+    </div>
+    <div class="presenter">Presenta: Rocío</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 5 · Transición de estados · Rocío
+     Diagrama SVG. Coordenadas a 1600×380.
+     =================================================== -->
+<section class="slide s5">
+    <div class="top"><span>Transición de estados</span><span class="right"><span class="num">05 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">El ciclo de vida <span>de la muestra</span></h2>
+    <div class="flow reveal d2">
+        <svg viewBox="0 0 1600 380" aria-label="Diagrama de estados de la muestra">
+            <defs>
+                <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111"/></marker>
+                <marker id="arR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#e0301e"/></marker>
+            </defs>
+            <!-- Camino feliz: 6 estados -->
+            <g font-size="22" class="st" text-anchor="middle">
+                <rect x="0"    y="20" width="220" height="96" fill="#fff" stroke="#111" stroke-width="3"/>
+                <text x="110"  y="76">Recibida</text>
+                <rect x="276"  y="20" width="220" height="96" fill="#fff" stroke="#111" stroke-width="3"/>
+                <text x="386"  y="76">Clasificada</text>
+                <rect x="552"  y="20" width="220" height="96" fill="#111" stroke="#111" stroke-width="3"/>
+                <text x="662"  y="64" fill="#fff">Pendiente</text><text x="662" y="92" fill="#fff">de firma</text>
+                <rect x="828"  y="20" width="220" height="96" fill="#fff" stroke="#111" stroke-width="3"/>
+                <text x="938"  y="76">Firmada</text>
+                <rect x="1104" y="20" width="220" height="96" fill="#fff" stroke="#111" stroke-width="3"/>
+                <text x="1214" y="64">Informe</text><text x="1214" y="92">emitido</text>
+                <rect x="1380" y="20" width="220" height="96" fill="#fff" stroke="#111" stroke-width="3"/>
+                <text x="1490" y="64">Reclasificación</text><text x="1490" y="92">notificada</text>
+            </g>
+            <g stroke="#111" stroke-width="3" marker-end="url(#ar)">
+                <line x1="222" y1="68" x2="272" y2="68"/><line x1="498" y1="68" x2="548" y2="68"/>
+                <line x1="774" y1="68" x2="824" y2="68"/><line x1="1050" y1="68" x2="1100" y2="68"/>
+                <line x1="1326" y1="68" x2="1376" y2="68"/>
+            </g>
+            <!-- Salidas -->
+            <g stroke="#e0301e" stroke-width="3" fill="none" marker-end="url(#arR)" stroke-dasharray="8 6">
+                <path d="M70,118 L70,250"/>
+                <path d="M150,118 L150,180 L330,180 L330,250"/>
+                <path d="M662,118 L662,250"/>
+            </g>
+            <g font-size="22" class="st" text-anchor="middle" fill="#e0301e">
+                <rect x="0"   y="254" width="160" height="80" fill="#fdeeec" stroke="#e0301e" stroke-width="3"/>
+                <text x="80"  y="302">Bloqueada</text>
+                <rect x="210" y="254" width="240" height="80" fill="#fdeeec" stroke="#e0301e" stroke-width="3"/>
+                <text x="330" y="290">Calidad</text><text x="330" y="318">insuficiente</text>
+                <rect x="552" y="254" width="220" height="80" fill="#fdeeec" stroke="#e0301e" stroke-width="3"/>
+                <text x="662" y="302">Rechazada</text>
+            </g>
+        </svg>
+    </div>
+    <div class="invalid reveal d4">
+        <span class="x">INVÁLIDA</span>
+        <p>Pedir el PDF sin firma → <b>se rechaza</b>. La muestra sigue en <code>Pendiente de firma</code>.</p>
+    </div>
+    <div class="presenter">Presenta: Rocío</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 6 · Tablas de decisión, caja gris, pairwise · Rocío
+     =================================================== -->
+<section class="slide s6">
+    <div class="top"><span>Técnicas de diseño de casos</span><span class="right"><span class="num">06 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Menos casos, <span>mejor elegidos</span></h2>
+    <div class="body">
+        <div class="three">
+            <div class="reveal d1">
+                <div class="kicker">Tabla de decisión · emisión del informe</div>
+                <table class="grid dt">
+                    <thead><tr><th>Muestra aceptada</th><th>Variantes patogénicas</th><th>Firma</th><th>¿Se emite?</th></tr></thead>
+                    <tbody>
+                        <tr><td>No</td><td>–</td><td>–</td><td class="no">No</td></tr>
+                        <tr><td>Sí</td><td>–</td><td>No</td><td class="no">No</td></tr>
+                        <tr><td>Sí</td><td>Sí</td><td>Sí</td><td class="yes">Sí</td></tr>
+                        <tr><td>Sí</td><td>No</td><td>Sí</td><td class="yes">Sí</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="reveal d2">
+                <div class="kicker">Caja gris · reclasificación</div>
+                <div class="hash">hash(PDF original)<br>antes de reclasificar<br><span class="eq">==</span><br>hash(PDF original)<br>después de reclasificar</div>
+                <p class="cap">El informe ya emitido no se modifica.</p>
+            </div>
+            <div class="reveal d3">
+                <div class="kicker">Pairwise</div>
+                <div class="big-num">54<br><span>→ 9</span></div>
+                <p class="cap">combinaciones → casos de prueba</p>
+                <span class="pct">83 % menos</span>
+            </div>
+        </div>
+    </div>
+    <div class="presenter">Presenta: Rocío</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 7 · Caja blanca · Kalil
+     =================================================== -->
+<section class="slide s7">
+    <div class="top"><span>Caja blanca</span><span class="right"><span class="num">07 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">ControlCalidad<span>.esCalidadSuficiente</span></h2>
+<pre class="code reveal d1"><span class="k">public boolean</span> <span class="n">esCalidadSuficiente</span>(Double q30) {
+  <span class="k">if</span> (q30 == <span class="k">null</span> || q30 &lt; 0.0 || q30 &gt; 100.0) {
+    <span class="k">throw new</span> IllegalArgumentException(...);<span class="path">C1</span>
+  }
+  <span class="k">return</span> q30 &gt;= UMBRAL_Q30; <span class="c">// 80.0</span><span class="path">C2</span><span class="path">C3</span>
+}</pre>
+    <ul class="paths reveal d2">
+        <li><b>C1</b>Q30 inválido (nulo, &lt; 0 o &gt; 100) → excepción</li>
+        <li><b>C2</b>Q30 &lt; 80 → calidad insuficiente</li>
+        <li><b>C3</b>Q30 ≥ 80 → calidad suficiente</li>
+    </ul>
+    <div class="stats">
+        <div class="stat reveal d2"><div class="v">3</div><div class="l">caminos independientes</div></div>
+        <div class="stat reveal d3"><div class="v">9</div><div class="l">tests en verde (JUnit 5)</div></div>
+        <div class="stat reveal d4"><div class="v">100<span>%</span></div><div class="l">líneas y ramas · JaCoCo</div></div>
+        <div class="reveal d5"><div class="tdd"><div class="r">RED</div><div class="g">GREEN</div><div class="f">REFACTOR</div></div></div>
+    </div>
+    <div class="presenter">Presenta: Kalil</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 8 · Automatización, BDD y mutación · Kalil (en curso)
+     =================================================== -->
+<section class="slide s8">
+    <div class="top"><span>Automatización</span><span class="right"><span class="tag-curso">En curso</span><span class="num">08 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Automatizar <span>lo que más importa</span></h2>
+    <div class="body">
+        <div class="cols4">
+            <div class="tool reveal d1"><div class="name">Cucumber</div><div class="kind">BDD</div><p>Given-When-Then para revisión y firma, y umbral de confianza.</p></div>
+            <div class="tool reveal d2"><div class="name">Postman</div><div class="kind">API</div><p>Login, permisos por rol, datos inválidos o repetidos.</p></div>
+            <div class="tool reveal d3"><div class="name">JUnit 5</div><div class="kind">Regresión · TDD</div><p>Suite de regresión con evidencia red-green-refactor.</p></div>
+            <div class="tool reveal d4"><div class="name">PIT</div><div class="kind">Mutación</div><p>¿Los tests detectan cambios en el código?</p></div>
+        </div>
+    </div>
+    <div class="results reveal d5">
+        <div class="res"><div><div class="t">Cobertura total</div><div class="goal">JaCoCo · objetivo 80 %</div></div><span class="todo">[COMPLETAR: cobertura total JaCoCo]</span></div>
+        <div class="res"><div><div class="t">Puntaje de mutación</div><div class="goal">PIT · objetivo 75 %</div></div><span class="todo">[COMPLETAR: puntaje de mutación]</span></div>
+    </div>
+    <div class="presenter">Presenta: Kalil</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 9 · Pruebas manuales, portal y defectos · Kalil (en curso)
+     =================================================== -->
+<section class="slide s9">
+    <div class="top"><span>Pruebas manuales y defectos</span><span class="right"><span class="tag-curso">En curso</span><span class="num">09 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">Probar el portal <span>como un usuario</span></h2>
+    <div class="body">
+        <div class="cols3">
+            <div class="tool reveal d1"><div class="name">Exploratorias</div><div class="kind">Manual</div><p>Sesiones exploratorias sobre el portal mínimo.</p></div>
+            <div class="tool reveal d2"><div class="name">Selenium</div><div class="kind">E2E</div><p>Flujo del portal automatizado de punta a punta.</p></div>
+            <div class="tool reveal d3"><div class="name">Jira · GCL</div><div class="kind">Defectos</div><p>Tablero Kanban con 5 épicas. Severidad según el impacto clínico.</p></div>
+        </div>
+    </div>
+    <div class="results reveal d4">
+        <div class="res"><div><div class="t">Ejecución de casos</div><div class="goal">aprobados / fallidos / bloqueados</div></div><span class="todo">[COMPLETAR: aprobados / fallidos / bloqueados]</span></div>
+        <div class="res"><div><div class="t">Defectos</div><div class="goal">por severidad</div></div><span class="todo">[COMPLETAR: defectos por severidad]</span></div>
+    </div>
+    <div class="presenter">Presenta: Kalil</div>
+</section>
+
+<!-- ===================================================
+     SLIDE 10 · Métricas, conclusiones, recomendación · Kiara (en curso)
+     =================================================== -->
+<section class="slide s10">
+    <div class="top"><span>Conclusiones</span><span class="right"><span class="tag-curso">En curso</span><span class="num">10 / 10</span></span></div>
+    <div class="bar"></div>
+    <h2 class="h2 reveal">¿Liberamos <span>la 4.2.0?</span></h2>
+    <div class="kpi reveal d1">
+        <div class="kicker">KPIs vs criterios de salida · modelo simulado</div>
+        <table class="grid">
+            <thead><tr><th>KPI</th><th>Objetivo</th><th>Resultado</th></tr></thead>
+            <tbody>
+                <tr><td>Sensibilidad</td><td>≥ 98 %</td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td>Patogénicas como benignas</td><td>≤ 1 %</td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td>Concordancia</td><td>≥ 95 %</td><td><span class="todo">[COMPLETAR]</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="lim reveal d2">
+        <div class="kicker">Limitaciones</div>
+        <ul>
+            <li>Independencia parcial: la implementación es nuestra</li>
+            <li>Sin pruebas de carga ni de disponibilidad</li>
+            <li>Sin el modelo de IA real</li>
+        </ul>
+    </div>
+    <div class="reco reveal d4">
+        <span class="k">Recomendación</span>
+        <span class="todo">[COMPLETAR: liberar / liberar con condiciones / no liberar, y por qué]</span>
+    </div>
+    <div class="ia">El uso de IA en este trabajo está declarado y documentado.</div>
+    <div class="presenter">Presenta: Kiara</div>
+</section>
+
+</main>
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Modo edición (E)">EDITAR</button>
+
+<script>
+/* ===========================================
+   CONTROLADOR DE LA PRESENTACIÓN
+   Flechas, espacio, Re Pág/Av Pág, rueda y swipe
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.stage = document.getElementById('deckStage');
+        this.progress = document.getElementById('progress');
+        this.current = 0;
+        this.wheelLock = false;
+        this.setupScale();
+        this.setupKeys();
+        this.setupTouch();
+        this.setupWheel();
+        const fromHash = parseInt(location.hash.slice(1), 10);
+        this.show(Number.isFinite(fromHash) ? fromHash - 1 : 0);
+    }
+    setupScale() {
+        const fit = () => {
+            const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+            this.stage.style.transform = `translate(${(innerWidth - 1920 * k) / 2}px, ${(innerHeight - 1080 * k) / 2}px) scale(${k})`;
+        };
+        fit();
+        addEventListener('resize', fit);
+    }
+    setupKeys() {
+        document.addEventListener('keydown', e => {
+            if (document.body.classList.contains('editing')) return;
+            if (['ArrowRight', 'ArrowDown', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); this.show(this.current + 1); }
+            if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); this.show(this.current - 1); }
+            if (e.key === 'Home') this.show(0);
+            if (e.key === 'End') this.show(this.slides.length - 1);
+        });
+    }
+    setupTouch() {
+        let x0 = null;
+        addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+        addEventListener('touchend', e => {
+            if (x0 === null || document.body.classList.contains('editing')) return;
+            const dx = e.changedTouches[0].clientX - x0;
+            if (Math.abs(dx) > 50) this.show(this.current + (dx < 0 ? 1 : -1));
+            x0 = null;
+        });
+    }
+    setupWheel() {
+        addEventListener('wheel', e => {
+            if (this.wheelLock || document.body.classList.contains('editing')) return;
+            if (Math.abs(e.deltaY) < 20) return;
+            this.wheelLock = true;
+            this.show(this.current + (e.deltaY > 0 ? 1 : -1));
+            setTimeout(() => (this.wheelLock = false), 700);
+        }, { passive: true });
+    }
+    show(i) {
+        this.current = Math.max(0, Math.min(i, this.slides.length - 1));
+        this.slides.forEach((s, n) => {
+            s.classList.toggle('active', n === this.current);
+            s.classList.toggle('visible', n === this.current);
+        });
+        this.progress.style.width = ((this.current + 1) / this.slides.length * 100) + '%';
+        history.replaceState(null, '', '#' + (this.current + 1));
+    }
+}
+const deck = new SlidePresentation();
+
+/* ===========================================
+   EDICIÓN EN LÍNEA
+   E o esquina superior izquierda: activa/desactiva.
+   Los cambios se guardan en localStorage; Ctrl+S descarga el HTML.
+   =========================================== */
+const editor = {
+    isActive: false,
+    key: 'genoclasifica-tpi-edits',
+    targets() { return document.querySelectorAll('.slide h1, .slide h2, .slide p, .slide li, .slide td, .slide .todo, .slide .name, .slide .t, .slide .note, .slide .says, .slide .assume'); },
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle('editing', this.isActive);
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        this.targets().forEach(el => el.setAttribute('contenteditable', this.isActive ? 'true' : 'false'));
+        if (!this.isActive) this.save();
+    },
+    save() {
+        try {
+            const data = [...this.targets()].map(el => el.innerHTML);
+            localStorage.setItem(this.key, JSON.stringify(data));
+        } catch (e) {}
+    },
+    load() {
+        try {
+            const data = JSON.parse(localStorage.getItem(this.key) || 'null');
+            if (!data) return;
+            const els = this.targets();
+            if (data.length !== els.length) return;
+            els.forEach((el, i) => (el.innerHTML = data[i]));
+        } catch (e) {}
+    },
+    download() {
+        this.targets().forEach(el => el.removeAttribute('contenteditable'));
+        document.body.classList.remove('editing');
+        const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+        a.download = 'genoclasifica-tpi.html';
+        a.click();
+        if (this.isActive) this.toggleEditMode();
+    }
+};
+editor.load();
+
+const editToggle = document.getElementById('editToggle');
+const hotzone = document.getElementById('editHotzone');
+let hideTimeout = null;
+editToggle.addEventListener('click', () => editor.toggleEditMode());
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+hotzone.addEventListener('mouseenter', () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); });
+hotzone.addEventListener('mouseleave', () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400); });
+editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+editToggle.addEventListener('mouseleave', () => { hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400); });
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); editor.save(); editor.download(); return; }
+    if ((e.key === 'e' || e.key === 'E') && e.target.getAttribute('contenteditable') !== 'true') editor.toggleEditMode();
+});
+document.addEventListener('input', () => editor.save());
+</script>
+</body>
+</html>
