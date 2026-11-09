@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Bases de datos locales de QA y staging ###
+/data/
