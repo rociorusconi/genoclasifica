@@ -53,4 +53,12 @@ class ControlCoberturaTest {
         assertEquals(List.of(2001), control.posicionesNoEvaluables(cobertura));
         assertEquals("2001", control.resumenNoEvaluables(cobertura));
     }
+
+    @Test
+    void coberturaNulaEsRechazadaConMensajeDeObligatoria() { // CP-COB-08
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+            () -> control.esEvaluable(null));
+
+        assertEquals("La cobertura es obligatoria", error.getMessage());
+    }
 }
