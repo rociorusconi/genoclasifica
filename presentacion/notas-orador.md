@@ -95,7 +95,7 @@
   - **C1:** Q30 inválido (nulo, negativo o mayor a 100) → lanza excepción.
   - **C2:** Q30 menor a 80 → calidad insuficiente.
   - **C3:** Q30 mayor o igual a 80 → calidad suficiente.
-- La conclusión principal está abajo: los casos de caja negra de Q30 (CP-Q30-01 a 08) ya recorren el 100 % del método. No hizo falta agregar casos nuevos. JaCoCo marca 100 % de líneas y de ramas.
+- La conclusión principal está abajo: los casos de caja negra de Q30 (CP-Q30-01 a 08) ya recorrían el 100 % del método (JaCoCo marcaba 100 % de líneas y de ramas), pero PIT encontró un mutante vivo, así que agregamos CP-Q30-09 (Q30 = 0).
 - La clase se hizo con TDD: primero el test en rojo, después el código mínimo para pasarlo y después el refactor.
 
 ## Slide 10: Pruebas automatizadas (Kalil, ~1:40) · EN CURSO
