@@ -21,6 +21,11 @@ class ClasificadorConfianzaTest {
             () -> clasificador.clasificar(Categoria.PATOGENICA, 100.1));
     }
 
+    @Test
+    void confianzaNulaEsRechazada() { // CP-CONF-16
+        assertThrows(IllegalArgumentException.class,
+            () -> clasificador.clasificar(Categoria.PATOGENICA, null));
+    }    
 
     @Test
     void patogenicaConConfianzaCeroRequiereRevision() { // CP-CONF-02
