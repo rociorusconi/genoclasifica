@@ -33,6 +33,11 @@ class ControlCalidadTest {
     }
     
     @Test
+    void q30CeroEsValidoPeroInsuficiente() { // CP-Q30-09
+        assertFalse(control.esCalidadSuficiente(0.0));
+    }
+
+    @Test
     void q30NuloEsRechazado() { // CP-Q30-01
         assertThrows(IllegalArgumentException.class,
             () -> control.esCalidadSuficiente(null));
