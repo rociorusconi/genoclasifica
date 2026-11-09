@@ -97,7 +97,6 @@
   - **C3:** Q30 mayor o igual a 80 → calidad suficiente.
 - La conclusión principal está abajo: los casos de caja negra de Q30 (CP-Q30-01 a 08) ya recorren el 100 % del método. No hizo falta agregar casos nuevos. JaCoCo marca 100 % de líneas y de ramas.
 - La clase se hizo con TDD: primero el test en rojo, después el código mínimo para pasarlo y después el refactor.
-- **⚠ Revisar:** el indicador de la slide dice "9 tests en verde", pero la frase destacada nombra los casos CP-Q30-01 a 08, y en el repo `ControlCalidadTest.java` tiene **8** tests. Así como está, la slide se contradice. Corrijan el 9 o expliquen de dónde sale el noveno. También conviene volver a correr `mvnw test jacoco:report` para tener a mano el reporte del 100 %.
 
 ## Slide 10: Pruebas automatizadas (Kalil, ~1:40) · EN CURSO
 
@@ -106,9 +105,9 @@
   - **Postman:** la API (login, permisos por rol y datos inválidos o repetidos).
   - **Cucumber:** escenarios Given-When-Then de revisión y firma, y del umbral de confianza. Sirven como documentación que entiende alguien que no programa.
 - **Idea central:** no alcanza con que los tests pasen; con JaCoCo y PIT medimos si realmente detectan errores.
-  - **JaCoCo** mide cuánto código recorren los tests (objetivo 80 %). Resultado: [COMPLETAR].
-  - **PIT** cambia el código a propósito (mutantes) y mira si algún test falla. Si ningún test falla, ese test no estaba verificando nada (objetivo 75 %). Resultado: [COMPLETAR].
-- Qué no automatizamos y por qué: [COMPLETAR: criterio].
+  - **JaCoCo** mide cuánto código recorren los tests (objetivo 80 %). Resultado: **95,7 % de líneas (45 de 47) y 94,1 % de ramas (32 de 34)**. Lo único que queda sin cubrir es el `main` de `GenoclasificaApplication` y una rama en `ClasificadorConfianza` y otra en `ControlContaminacion`.
+  - **PIT** cambia el código a propósito (mutantes) y mira si algún test falla. Resultado: **100 %, 41 de 41 mutantes eliminados**. Ojo: PIT corre solo sobre las reglas de umbral (calidad, contaminación, cobertura, confianza y categorías), no sobre todo el proyecto. La primera corrida JaCoCo daba 100 % en ControlCalidad, pero PIT encontró un mutante sobreviviente (q30 < 0 cambiado por <= 0). Faltaba el caso Q30 = 0 %, y lo agregamos como CP-Q30-09 dejó vivo un mutante en `ControlCalidad`, y lo eliminamos agregando el caso CP-Q30-09 (Q30 = 0).
+- Qué no automatizamos y por qué: exploración del portal y legibilidad del informe (requieren juicio humano), pruebas que se hacen una sola vez y el modelo de IA real (no tenemos acceso).
 - Si todavía no hay datos el día de la exposición, decirlo tal cual: "esto está en curso".
 
 ## Slide 11: Ejecución manual y defectos (Kalil, ~1:40) · EN CURSO

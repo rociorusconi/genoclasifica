@@ -316,11 +316,14 @@ table.grid td:first-child { font-weight: 700; }
 .res .t { font: 700 28px var(--font-display); }
 .res .goal { font-size: 22px; color: var(--muted); margin-top: 4px; }
 .res .todo { font-size: 22px; }
+/* Resultado medido (reemplaza al [COMPLETAR] cuando hay dato real) */
+.res .val { font: 800 44px/1 var(--font-display); letter-spacing: -0.02em; }
+.res .val small { display: block; font: 400 20px var(--font-body); color: var(--muted); letter-spacing: 0; margin-top: 8px; }
 /* Slide "Pruebas automatizadas": dos bloques + nota al pie */
 .s8 .tool .name { font-size: 34px; }
 .s8k { position: absolute; left: 160px; top: 600px; }
 .s8r { top: 662px; }
-.s8note { position: absolute; left: 160px; top: 878px; font-size: 22px; color: var(--muted); }
+.s8note { position: absolute; left: 160px; top: 912px; font-size: 22px; color: var(--muted); }
 .s8note .todo { font-size: 20px; }
 /* Slide "Ejecución manual y defectos": dos columnas + ficha de defecto */
 .exec2 { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; }
@@ -723,7 +726,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
         <div class="stat reveal d4"><div class="v">100<span> %</span></div><div class="l">líneas y ramas · JaCoCo</div></div>
         <div class="reveal d5"><div class="tdd"><div class="r">RED</div><div class="g">GREEN</div><div class="f">REFACTOR</div></div></div>
     </div>
-    <div class="callout reveal d5">Los casos de caja negra de Q30 (CP-Q30-01 a 08) recorren el <span>100 % del método</span>. No hizo falta agregar casos nuevos.</div>
+    <div class="callout reveal d5">Los casos de caja negra de Q30 (CP-Q30-01 a 09) recorren el <span>100 % del método</span>. No hizo falta agregar casos nuevos.</div>
     <div class="presenter">Presenta: Kalil</div>
 </section>
 
@@ -746,10 +749,10 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
     <!-- Bloque 2: ¿las pruebas detectan errores? -->
     <div class="kicker s8k reveal d4">¿Las pruebas detectan errores?</div>
     <div class="results s8r reveal d4">
-        <div class="res"><div><div class="t">JaCoCo · cobertura</div><div class="goal">objetivo 80 %</div></div><span class="todo">[COMPLETAR: cobertura total JaCoCo]</span></div>
-        <div class="res"><div><div class="t">PIT · mutación</div><div class="goal">objetivo 75 %</div></div><span class="todo">[COMPLETAR: puntaje de mutación]</span></div>
+        <div class="res"><div><div class="t">JaCoCo · cobertura</div><div class="goal">objetivo 80 %</div></div><div class="val">95,7 %<small>de líneas · 94,1 % de ramas</small></div></div>
+        <div class="res"><div><div class="t">PIT · mutación</div><div class="goal">objetivo 75 %</div></div><div class="val">100 %<small>41 de 41 mutantes eliminados · reglas de umbral</small></div></div>
     </div>
-    <p class="s8note reveal d5">Qué no automatizamos y por qué: <span class="todo">[COMPLETAR: criterio]</span></p>
+    <p class="s8note reveal d5">Qué no automatizamos y por qué: Exploración del portal y legibilidad del informe (juicio humano), pruebas únicas y el modelo de IA real (sin acceso).</p>
     <div class="presenter">Presenta: Kalil</div>
 </section>
 
@@ -812,8 +815,8 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <tr class="grp"><td colspan="4">Proceso</td></tr>
                 <tr><td class="nm">Casos P1 y P2 aprobados</td><td>100 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
                 <tr><td class="nm">Defectos críticos o altos abiertos</td><td>0</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
-                <tr><td class="nm">Cobertura JaCoCo</td><td>≥ 80 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
-                <tr><td class="nm">Puntaje de mutación PIT</td><td>≥ 75 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Cobertura JaCoCo</td><td>≥ 80 %</td><td>95,7 % de líneas · 94,1 % de ramas</td><td><span class="sem ok">✓</span></td></tr>
+                <tr><td class="nm">Puntaje de mutación PIT</td><td>≥ 75 %</td><td>100 % (41 de 41 mutantes)</td><td><span class="sem ok">✓</span></td></tr>
                 <tr class="grp"><td colspan="4">Rendimiento</td></tr>
                 <tr><td class="nm">Búsqueda en el portal</td><td>&lt; 3 s</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
                 <tr><td class="nm">Procesamiento por muestra<small>Nuestra implementación no procesa archivos del secuenciador</small></td><td>&lt; 2 h</td><td>No medible</td><td><span class="sem na">–</span></td></tr>
