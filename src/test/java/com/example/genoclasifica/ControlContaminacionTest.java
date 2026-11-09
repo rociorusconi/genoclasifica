@@ -43,4 +43,10 @@ class ControlContaminacionTest {
         assertThrows(IllegalArgumentException.class, 
             () -> control.esContaminacionAceptada(100.1));
     }
+
+    @Test
+    void contaminacionNulaEsRechazada() { // CP-CON-08
+        assertThrows(IllegalArgumentException.class,
+            () -> control.esContaminacionAceptada(null));
+    }
 }
