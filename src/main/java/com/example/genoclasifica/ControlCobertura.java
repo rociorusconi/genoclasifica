@@ -9,7 +9,10 @@ public class ControlCobertura {
     private static final int UMBRAL_COBERTURA = 30;
 
     public boolean esEvaluable(Integer cobertura) {
-        if (cobertura == null || cobertura < 0) {
+        if (cobertura == null) {
+            throw new IllegalArgumentException("La cobertura es obligatoria");
+        }
+        if (cobertura < 0) {
             throw new IllegalArgumentException("La cobertura no puede ser negativa");
         }
 
