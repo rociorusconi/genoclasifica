@@ -4,6 +4,7 @@ import com.example.genoclasifica.Categoria;
 import com.example.genoclasifica.ClasificadorConfianza;
 import com.example.genoclasifica.ControlCalidad;
 import com.example.genoclasifica.ControlContaminacion;
+import com.example.genoclasifica.auditoria.Auditoria;
 import com.example.genoclasifica.seguridad.Rol;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,14 @@ public class MuestraService {
     private static final List<EstadoMuestra> RECHAZADAS = List.of(RECHAZADA_DUPLICADA, RECHAZADA_INTEGRIDAD);
 
     private final MuestraRepository muestras;
+    private final Auditoria auditoria;
     private final ControlCalidad controlCalidad = new ControlCalidad();
     private final ControlContaminacion controlContaminacion = new ControlContaminacion();
     private final ClasificadorConfianza clasificador = new ClasificadorConfianza();
 
-    public MuestraService(MuestraRepository muestras) {
+    public MuestraService(MuestraRepository muestras, Auditoria auditoria) {
         this.muestras = muestras;
+        this.auditoria = auditoria;
     }
 
     public Muestra recibir(SolicitudRecepcion solicitud) {
@@ -49,7 +52,10 @@ public class MuestraService {
                     new Variante(v.gen(), v.posicion(), v.tipo(), v.categoriaPropuesta(), v.confianza())));
             }
         }
-        return muestras.save(muestra);
+        Muestra guardada = muestras.save(muestra);
+        auditoria.registrar("RECEPCION", guardada.getCodigo(),
+            "corrida=" + guardada.getIdCorrida() + "; estado=" + guardada.getEstado().getDescripcion());
+        return guardada;
     }
 
     public Muestra procesar(String codigo) {
@@ -71,19 +77,23 @@ public class MuestraService {
             muestra.getVariantes().forEach(v -> v.aplicar(clasificador.clasificar(v.getCategoriaPropuesta(), v.getConfianza())));
             muestra.cambiarEstado(muestra.tieneVariantesQueExigenFirma() ? PENDIENTE_FIRMA : CLASIFICADA);
         }
+        auditoria.registrar("PROCESAMIENTO", codigo, "estado=" + muestra.getEstado().getDescripcion());
         return muestra;
     }
 
     public Muestra firmar(String codigo, String usuario, Rol rol) {
         Muestra muestra = buscar(codigo);
         if (rol != Rol.GENETISTA) {
-            throw new PermisoDenegadoException("Acceso denegado: se requiere rol Genetista para firmar diagnósticos");
+            throw rechazo("FIRMA_RECHAZADA", codigo,
+                new PermisoDenegadoException("Acceso denegado: se requiere rol Genetista para firmar diagnósticos"));
         }
         if (muestra.getEstado() != PENDIENTE_FIRMA) {
-            throw new TransicionInvalidaException("Solo se puede firmar una muestra en estado Pendiente de firma");
+            throw rechazo("FIRMA_RECHAZADA", codigo,
+                new TransicionInvalidaException("Solo se puede firmar una muestra en estado Pendiente de firma"));
         }
         muestra.registrarFirma(usuario);
         muestra.cambiarEstado(FIRMADA);
+        auditoria.registrar("FIRMA", codigo, "firmada por " + usuario);
         return muestra;
     }
 
@@ -91,13 +101,31 @@ public class MuestraService {
         Muestra muestra = buscar(codigo);
         switch (muestra.getEstado()) {
             case CLASIFICADA, FIRMADA -> muestra.cambiarEstado(INFORME_EMITIDO);
-            case PENDIENTE_FIRMA -> throw new FirmaRequeridaException();
-            case BLOQUEADA, CALIDAD_INSUFICIENTE_Y_BLOQUEADA ->
-                throw new TransicionInvalidaException("No se puede emitir informe de una muestra bloqueada por seguridad clínica (RF-07)");
-            default -> throw new TransicionInvalidaException(
-                "No se puede emitir informe de una muestra en estado " + muestra.getEstado().getDescripcion());
+            case PENDIENTE_FIRMA -> throw rechazo("INFORME_RECHAZADO", codigo, new FirmaRequeridaException());
+            case BLOQUEADA, CALIDAD_INSUFICIENTE_Y_BLOQUEADA -> throw rechazo("INFORME_RECHAZADO", codigo,
+                new TransicionInvalidaException("No se puede emitir informe de una muestra bloqueada por seguridad clínica (RF-07)"));
+            default -> throw rechazo("INFORME_RECHAZADO", codigo, new TransicionInvalidaException(
+                "No se puede emitir informe de una muestra en estado " + muestra.getEstado().getDescripcion()));
         }
         return muestra;
+    }
+
+    // T12: solo una muestra con informe emitido pasa a "Reclasificación notificada". El informe no se toca.
+    public Muestra registrarReclasificacion(String codigo, String detalle) {
+        Muestra muestra = buscar(codigo);
+        if (muestra.getEstado() != INFORME_EMITIDO && muestra.getEstado() != RECLASIFICACION_NOTIFICADA) {
+            throw new TransicionInvalidaException(
+                "Solo se notifica la reclasificación de una muestra con informe emitido; estado actual: " + muestra.getEstado().getDescripcion());
+        }
+        muestra.cambiarEstado(RECLASIFICACION_NOTIFICADA);
+        auditoria.registrar("RECLASIFICACION_NOTIFICADA", codigo, detalle);
+        return muestra;
+    }
+
+    // Los intentos rechazados también quedan auditados (postcondición de CP-ST-INV-01)
+    private RuntimeException rechazo(String accion, String codigo, RuntimeException motivo) {
+        auditoria.registrarRechazo(accion, codigo, motivo.getMessage());
+        return motivo;
     }
 
     @Transactional(readOnly = true)

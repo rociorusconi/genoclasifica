@@ -1,4 +1,4 @@
-package com.example.genoclasifica.api;
+package com.example.genoclasifica.informe;
 
 import com.example.genoclasifica.muestra.Muestra;
 import com.example.genoclasifica.muestra.Variante;
