@@ -46,6 +46,9 @@ public class SeguridadConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/samples/*/sign").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/reports/*/pdf").hasAnyRole("TECNICO", "GENETISTA", "ADMINISTRADOR")
                 .requestMatchers(HttpMethod.GET, "/api/v1/samples/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/v1/reclassifications").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/api/v1/notifications").hasAnyRole("GENETISTA", "ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/api/v1/audit").hasAnyRole("AUDITOR", "ADMINISTRADOR")
                 .anyRequest().denyAll())
             .oauth2ResourceServer(o -> o.jwt(jwt -> jwt.jwtAuthenticationConverter(rolesDelToken())))
             .exceptionHandling(e -> e
