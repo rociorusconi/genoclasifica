@@ -58,8 +58,25 @@
             <form id="form-buscar">
                 <label>Buscar por código <input id="buscar-codigo" required></label>
                 <button id="btn-buscar" type="submit">Buscar</button>
-                <button id="btn-actualizar" type="button">Actualizar lista</button>
             </form>
+            <form id="form-filtros">
+                <label>Gen <input id="filtro-gen"></label>
+                <label>Categoría
+                    <select id="filtro-categoria">
+                        <option value="">Todas</option>
+                        <option>BENIGNA</option>
+                        <option>PROBABLEMENTE_BENIGNA</option>
+                        <option>SIGNIFICADO_INCIERTO</option>
+                        <option>PROBABLEMENTE_PATOGENICA</option>
+                        <option>PATOGENICA</option>
+                    </select>
+                </label>
+                <label>Desde <input id="filtro-desde" type="date"></label>
+                <label>Hasta <input id="filtro-hasta" type="date"></label>
+                <button id="btn-filtrar" type="submit">Filtrar</button>
+                <button id="btn-limpiar" type="button">Limpiar filtros</button>
+            </form>
+            <p id="resultado-filtros" class="nota"></p>
             <table id="tabla-muestras">
                 <thead><tr><th>Código</th><th>Corrida</th><th>Estado</th><th>Recepción</th><th></th></tr></thead>
                 <tbody></tbody>
@@ -78,7 +95,7 @@
             <div class="acciones">
                 <button id="btn-procesar" type="button" data-roles="BIOINFORMATICO ADMINISTRADOR" hidden>Procesar</button>
                 <button id="btn-firmar" type="button" data-roles="GENETISTA" hidden>Firmar diagnóstico</button>
-                <button id="btn-informe" type="button" data-roles="TECNICO GENETISTA ADMINISTRADOR" hidden>Descargar informe PDF</button>
+                <button id="btn-informe" type="button" data-roles="TECNICO GENETISTA ADMINISTRADOR" hidden>Generar informe PDF</button>
             </div>
         </section>
     </section>

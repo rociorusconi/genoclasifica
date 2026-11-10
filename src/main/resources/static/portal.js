@@ -85,10 +85,20 @@ function celda(fila, texto) {
 }
 
 async function cargarMuestras() {
-    const res = await pedir("GET", "/samples");
+    const filtros = new URLSearchParams();
+    [["gen", "filtro-gen"], ["categoria", "filtro-categoria"], ["desde", "filtro-desde"], ["hasta", "filtro-hasta"]]
+        .forEach(([param, id]) => { if ($(id).value.trim()) filtros.set(param, $(id).value.trim()); });
+    const inicio = performance.now();
+    const res = await pedir("GET", "/samples?" + filtros);
+    if (!res.ok) {
+        mostrarMensaje(await leerError(res), "error");
+        return;
+    }
+    const lista = await res.json();
+    $("resultado-filtros").textContent = lista.length + " muestra(s) · " + Math.round(performance.now() - inicio) + " ms";
     const cuerpo = $("tabla-muestras").querySelector("tbody");
     cuerpo.replaceChildren();
-    for (const m of await res.json()) {
+    for (const m of lista) {
         const fila = document.createElement("tr");
         fila.dataset.codigo = m.codigo;
         celda(fila, m.codigo);
@@ -198,7 +208,8 @@ async function descargarInforme() {
 $("form-login").onsubmit = ingresar;
 $("form-registro").onsubmit = registrar;
 $("form-buscar").onsubmit = e => { e.preventDefault(); verMuestra($("buscar-codigo").value.trim()); };
-$("btn-actualizar").onclick = cargarMuestras;
+$("form-filtros").onsubmit = e => { e.preventDefault(); cargarMuestras(); };
+$("btn-limpiar").onclick = () => { $("form-filtros").reset(); cargarMuestras(); };
 $("btn-salir").onclick = () => salir();
 $("btn-procesar").onclick = () => accion("POST", "/process", "Muestra procesada");
 $("btn-firmar").onclick = () => accion("POST", "/sign", "Diagnóstico firmado");
