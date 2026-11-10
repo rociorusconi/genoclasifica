@@ -215,4 +215,29 @@ class ApiMuestrasTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.mensaje").value(containsString("categoria")));
     }
+
+    @Test
+    void soloElAdministradorCargaUnaReclasificacion() throws Exception { // RF-08, RF-09
+        String cambio = "{\"gen\":\"MSH6\",\"posicion\":3003,\"categoriaNueva\":\"BENIGNA\",\"versionBases\":\"ClinVar-2026-11\"}";
+
+        mvc.perform(conToken(post("/api/v1/reclassifications"), "genetista_1").contentType(MediaType.APPLICATION_JSON).content(cambio))
+            .andExpect(status().isForbidden());
+        mvc.perform(conToken(post("/api/v1/reclassifications"), "admin").contentType(MediaType.APPLICATION_JSON).content(cambio))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void laAuditoriaLaConsultanAuditorYAdministrador() throws Exception { // RF-10
+        recibirYProcesar("API-0012", 1.0, "BENIGNA");
+
+        mvc.perform(conToken(get("/api/v1/audit?codigo=API-0012"), "tecnico_lab"))
+            .andExpect(status().isForbidden());
+        mvc.perform(conToken(get("/api/v1/audit?codigo=API-0012"), "auditor"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].accion").value("RECEPCION"))
+            .andExpect(jsonPath("$[0].usuario").value("tecnico_lab"))
+            .andExpect(jsonPath("$[1].accion").value("PROCESAMIENTO"))
+            .andExpect(jsonPath("$[1].usuario").value("bio_user"));
+    }
 }
