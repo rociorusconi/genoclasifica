@@ -238,6 +238,53 @@
           ]
         },
         {
+          "name": "Login admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"admin\",\n  \"clave\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login correcto: responde 200\", () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test(\"Devuelve un token JWT\", () => pm.expect(datos.token.split(\".\")).to.have.lengthOf(3));",
+                  "pm.environment.set(\"token_admin\", datos.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Login con clave incorrecta",
           "request": {
             "method": "POST",
@@ -1046,7 +1093,8 @@
                 "exec": [
                   "pm.test(\"Informe: responde 200\", () => pm.response.to.have.status(200));",
                   "pm.test(\"Es un PDF\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/pdf\"));",
-                  "pm.test(\"El archivo empieza con %PDF\", () => pm.expect(pm.response.text().substring(0, 5)).to.eql(\"%PDF-\"));"
+                  "pm.test(\"El archivo empieza con %PDF\", () => pm.expect(pm.response.text().substring(0, 5)).to.eql(\"%PDF-\"));",
+                  "pm.environment.set(\"pdf_original\", pm.response.text());"
                 ]
               }
             }
@@ -1383,6 +1431,294 @@
                 "exec": [
                   "pm.test(\"No encontrada: responde 404\", () => pm.response.to.have.status(404));",
                   "pm.test(\"El mensaje dice: No existe la muestra\", () => pm.expect(pm.response.json().mensaje).to.include(\"No existe la muestra\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Reclasificación y auditoría (RF-08, RF-10)",
+      "item": [
+        {
+          "name": "Genetista intenta cargar una reclasificación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_genetista}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reclassifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reclassifications"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gen\": \"BRCA1\",\n  \"posicion\": 43071077,\n  \"categoriaNueva\": \"BENIGNA\",\n  \"versionBases\": \"ClinVar-2026-11\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol sin permiso: responde 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T12 · Administrador carga la nueva versión de las bases",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reclassifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reclassifications"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gen\": \"BRCA1\",\n  \"posicion\": 43071077,\n  \"categoriaNueva\": \"BENIGNA\",\n  \"versionBases\": \"ClinVar-2026-11\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Reclasificación: responde 200\", () => pm.response.to.have.status(200));",
+                  "const aviso = pm.response.json().find(n => n.codigoMuestra === pm.environment.get(\"muestra_patogenica\"));",
+                  "pm.test(\"Se notifica al genetista el cambio de PATOGENICA a BENIGNA\", () => {",
+                  "  pm.expect(aviso.categoriaAnterior).to.eql(\"PATOGENICA\");",
+                  "  pm.expect(aviso.categoriaNueva).to.eql(\"BENIGNA\");",
+                  "  pm.expect(aviso.destinatario).to.eql(\"GENETISTA\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "La muestra queda con reclasificación notificada",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_auditor}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Consulta: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La muestra queda en \\\"Reclasificación notificada\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Reclasificación notificada\"));",
+                  "pm.test(\"La variante conserva la categoría del informe\", () => pm.expect(pm.response.json().variantes[0].categoria).to.eql(\"PATOGENICA\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TI8 · CP-ST-INV-05 · El informe emitido no cambia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_genetista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/{{muestra_patogenica}}/pdf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "{{muestra_patogenica}}",
+                "pdf"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Informe: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Se entrega exactamente el mismo PDF que antes de la reclasificación\", () => pm.expect(pm.response.text()).to.eql(pm.environment.get(\"pdf_original\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Genetista ve la notificación",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_genetista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notifications"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Notificaciones: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Incluye el aviso de la muestra\", () => pm.expect(pm.response.json().map(n => n.codigoMuestra)).to.include(pm.environment.get(\"muestra_patogenica\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Técnico intenta ver la auditoría",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/audit?codigo={{muestra_patogenica}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit?codigo={{muestra_patogenica}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol sin permiso: responde 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Auditor consulta la auditoría de la muestra",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_auditor}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/audit?codigo={{muestra_patogenica}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "audit?codigo={{muestra_patogenica}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Auditoría: responde 200\", () => pm.response.to.have.status(200));",
+                  "const acciones = pm.response.json().map(r => r.accion);",
+                  "pm.test(\"Registra cada paso, incluidos los intentos rechazados\", () => {",
+                  "  [\"RECEPCION\", \"PROCESAMIENTO\", \"INFORME_RECHAZADO\", \"FIRMA_RECHAZADA\", \"FIRMA\", \"INFORME_EMITIDO\", \"RECLASIFICACION_NOTIFICADA\"]",
+                  "    .forEach(a => pm.expect(acciones).to.include(a));",
+                  "});",
+                  "pm.test(\"Cada registro tiene usuario y fecha\", () => pm.response.json().forEach(r => { pm.expect(r.usuario).to.be.a(\"string\"); pm.expect(r.fechaHora).to.be.a(\"string\"); }));"
                 ]
               }
             }
