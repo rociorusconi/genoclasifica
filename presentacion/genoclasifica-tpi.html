@@ -242,6 +242,9 @@ table.grid td:first-child { font-weight: 700; }
 .invalid .x { font: 800 30px var(--font-display); color: #fff; background: var(--red); padding: 10px 20px; }
 .invalid p { font-size: 28px; line-height: 1.35; }
 .invalid code { font-family: var(--font-mono); font-size: 0.9em; background: var(--soft); padding: 2px 8px; }
+/* Línea chica bajo el diagrama: resultado de la ejecución automatizada */
+.flow-note { position: absolute; left: 160px; right: 160px; top: 736px; font-size: 21px; line-height: 1.35; color: var(--muted); }
+.flow-note code { font-family: var(--font-mono); font-size: 0.9em; }
 
 /* ===========================================
    SLIDE 6: DECISIÓN, CAJA GRIS, PAIRWISE
@@ -260,7 +263,7 @@ table.grid td:first-child { font-weight: 700; }
 
 /* ===========================================
    SLIDE 7: MAPA DE TÉCNICAS ("Cómo diseñamos los casos")
-   Filas .q30 resaltadas: comparten la regla de Q30
+   Filas .q30 resaltadas: las técnicas que tienen slide propia a continuación
    =========================================== */
 .techmap { position: absolute; left: 160px; right: 160px; top: 340px; }
 .techmap table { border-collapse: collapse; width: 100%; font-size: 24px; }
@@ -634,9 +637,9 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
         <table>
             <thead><tr><th>Técnica</th><th>Ejemplo</th><th>Requisitos</th><th>Casos</th></tr></thead>
             <tbody>
-                <tr class="q30"><td>Partición de equivalencia y valores límite</td><td>Q30 en 79,9 / 80,0 / 80,1</td><td>RF-02, RF-03, RF-05</td><td>41 casos</td></tr>
+                <tr><td>Partición de equivalencia y valores límite</td><td>Q30 en 79,9 / 80,0 / 80,1</td><td>RF-02, RF-03, RF-05</td><td>41 casos</td></tr>
                 <tr><td>Tablas de decisión</td><td>Emisión del informe: muestra aceptada + variantes patogénicas + firma</td><td>RF-06, RF-07</td><td>2 tablas, 9 reglas</td></tr>
-                <tr><td>Transición de estados</td><td>Ciclo de vida de la muestra</td><td>RF-01, RF-06, RF-08</td><td>12 válidas, 11 inválidas</td></tr>
+                <tr class="q30"><td>Transición de estados</td><td>Ciclo de vida de la muestra</td><td>RF-01, RF-06, RF-08</td><td>12 válidas, 11 inválidas</td></tr>
                 <tr><td>Caja gris</td><td>Muestra bloqueada: nunca llega a 'Informe emitido'</td><td>RF-03, RF-07</td><td>4 diseñados, 1 ejecutado</td></tr>
                 <tr><td>Pairwise</td><td>4 parámetros: 54 combinaciones → 9 casos (83&nbsp;%&nbsp;menos)</td><td>Varios</td><td>9 casos</td></tr>
                 <tr class="q30"><td>Caja blanca</td><td>4 reglas de umbral: 100 % de ramas</td><td>RF-02, RF-03, RF-05</td><td>+2 casos encontrados</td></tr>
@@ -696,6 +699,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
             </g>
         </svg>
     </div>
+    <p class="flow-note reveal d3">Automatizado con Spring Boot Test (<code>MuestraServiceTest</code>): 21 de 23 transiciones aprobadas. Las de reclasificación (T12 y TI8) no se ejecutaron: no está implementada.</p>
     <div class="invalid reveal d4">
         <span class="x">INVÁLIDA</span>
         <p>Pedir el PDF sin firma → <b>se rechaza</b>. La muestra sigue en <code>Pendiente de firma</code>.</p>

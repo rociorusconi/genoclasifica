@@ -78,7 +78,7 @@
   - Si hay **muchos parámetros combinados**, usamos pairwise para no probar todas las combinaciones: de 54 bajamos a 9.
   - Con caja gris aprovechamos que conocemos parte de la implementación, por ejemplo para verificar que una muestra bloqueada nunca llegue a "Informe emitido". Diseñamos 4 casos y por ahora ejecutamos 1.
   - Con caja blanca revisamos las 4 reglas de umbral hasta llegar al 100 % de ramas. Así encontramos 2 casos que faltaban: contaminación nula (CP-CON-08) y confianza nula (CP-CONF-16).
-- Las filas en rojo (valores límite y caja blanca) trabajan sobre las mismas reglas de umbral. Es el hilo que retoma Kalil en la slide de caja blanca, con la regla de Q30 en detalle.
+- Las filas en rojo (transición de estados y caja blanca) son las que vemos en detalle a continuación: transición de estados en la próxima slide, y caja blanca en la de Kalil, con la regla de Q30.
 - No hace falta leer la tabla entera: el detalle de cada caso está en el informe.
 - Pase: "Les muestro una de estas técnicas en detalle: la transición de estados."
 
@@ -87,6 +87,7 @@
 - Modelamos el ciclo de vida de la muestra como una máquina de estados: Recibida, Clasificada, Pendiente de firma, Firmada, Informe emitido y, si cambia la clasificación, Reclasificación notificada.
 - También hay salidas: Bloqueada (por contaminación), Calidad insuficiente (por Q30 bajo) y Rechazada.
 - No solo probamos las transiciones válidas, también las inválidas. Ejemplo: pedir el PDF sin firma. El sistema tiene que rechazar el pedido, y la muestra tiene que seguir en "Pendiente de firma". Esto cubre directamente el riesgo R-03.
+- Debajo del diagrama está el resultado de la ejecución: automatizamos las transiciones con Spring Boot Test (`MuestraServiceTest`) y aprobaron 21 de 23. Las otras dos (T12 y TI8) son de reclasificación y no se ejecutaron, porque la reclasificación no está implementada. Es coherente con lo que dejamos fuera del alcance en la slide 4.
 - **⚠ Revisar:** en el diagrama, "Rechazada" sale de "Pendiente de firma". Confirmen que ese es el estado de origen correcto en su modelo; si no, hay que mover la flecha.
 - Pase a Kalil: "Kalil les muestra la parte técnica: caja blanca y automatización."
 
