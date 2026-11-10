@@ -39,11 +39,12 @@
 
 ## Slide 4: Alcance y estrategia (Kiara, ~0:40)
 
-- Primero, una decisión clave: no tenemos el código ni el modelo real. Por eso armamos una implementación de referencia propia en Java 21 con Spring Boot, que cumple las reglas RF-01 a RF-10. (Como ya se vio en la slide 3 qué parte cubre, acá alcanza con decirlo rápido.)
+- Primero, una decisión clave: no tenemos el código ni el modelo real. Por eso armamos una implementación de referencia propia en Java 21 con Spring Boot, que implementa las reglas del enunciado. (Como ya se vio en la slide 3 qué parte cubre, acá alcanza con decirlo rápido.)
 - La IA está simulada: nosotros elegimos la categoría y la confianza. Por eso nuestras conclusiones valen para las reglas y para nuestra implementación, no para el modelo real.
 - Usamos solo datos sintéticos, por las leyes 25.326 (datos personales) y 26.529 (derechos del paciente).
-- Dentro del alcance: las reglas, la API, la revisión y firma, el informe y un portal mínimo. Fuera: el modelo real, carga y disponibilidad, producción y datos reales.
+- Dentro del alcance: las reglas de calidad, contaminación y confianza, la API para el LIMS, la revisión y firma, la emisión del informe y un portal mínimo. Fuera: el modelo real, carga y disponibilidad, producción y datos reales. Tampoco entran la reclasificación, la auditoría ni el versionado, porque no los implementamos.
 - La tabla resume la estrategia: qué probamos, en qué nivel, con qué técnica y con qué herramienta. No hace falta leerla entera; alcanza con remarcar que combinamos pruebas unitarias, de integración, de aceptación y de sistema.
+- Las combinaciones de pairwise las diseñamos a mano y las ejecutamos con JUnit 5, sin una herramienta que las genere.
 - **⚠ Revisar:** la columna "Dentro / Fuera" y la asignación de técnicas en la tabla son una síntesis armada a partir del contenido. Confirmen que coinciden con el plan de pruebas.
 
 ## Slide 5: Riesgos y criterios (Kiara, ~0:40)
@@ -71,12 +72,13 @@
 ## Slide 7: Cómo diseñamos los casos (Rocío, ~1:40)
 
 - No usamos una sola técnica para todo: elegimos la técnica según el tipo de regla que queríamos probar.
-  - Si la regla tiene **umbrales numéricos** (como Q30), usamos partición de equivalencia y valores límite.
+  - Si la regla tiene **umbrales numéricos** (como Q30), usamos partición de equivalencia y valores límite: 41 casos.
   - Si combina **varias condiciones** (como la emisión del informe), usamos tablas de decisión.
   - Si depende del **estado en que está la muestra**, usamos transición de estados.
   - Si hay **muchos parámetros combinados**, usamos pairwise para no probar todas las combinaciones: de 54 bajamos a 9.
-  - Con caja gris aprovechamos que conocemos parte de la implementación, por ejemplo para verificar que el hash del PDF emitido no cambie.
-- Las filas en rojo (valores límite y caja blanca) usan la misma regla de Q30. Es el hilo que retoma Kalil en la slide de caja blanca.
+  - Con caja gris aprovechamos que conocemos parte de la implementación, por ejemplo para verificar que una muestra bloqueada nunca llegue a "Informe emitido". Diseñamos 4 casos y por ahora ejecutamos 1.
+  - Con caja blanca revisamos las 4 reglas de umbral hasta llegar al 100 % de ramas. Así encontramos 2 casos que faltaban: contaminación nula (CP-CON-08) y confianza nula (CP-CONF-16).
+- Las filas en rojo (valores límite y caja blanca) trabajan sobre las mismas reglas de umbral. Es el hilo que retoma Kalil en la slide de caja blanca, con la regla de Q30 en detalle.
 - No hace falta leer la tabla entera: el detalle de cada caso está en el informe.
 - Pase: "Les muestro una de estas técnicas en detalle: la transición de estados."
 
@@ -118,7 +120,12 @@
   - Selenium automatiza el flujo principal del portal: búsqueda, filtros y revisión y firma.
   - Resultado: aprobados / fallidos / bloqueados [COMPLETAR].
 - **Defectos en Jira:** la severidad de cada defecto se define por su impacto clínico, no solo técnico. Cada defecto tiene además prioridad, evidencia y un ciclo de vida. Defectos por severidad: [COMPLETAR].
-- Mostrar un defecto real en Jira durante la exposición: cómo se reportó, qué severidad le dimos y por qué. La ficha de la slide sirve de guía: ID, título, severidad, prioridad, evidencia y estado.
+- Defecto de ejemplo, **GCL-53: mensaje de error incorrecto con cobertura vacía**.
+  - Lo detectó el test CP-COB-08 en la fase RED de TDD: con cobertura vacía, el sistema rechazaba el dato, pero con un mensaje de error que no correspondía.
+  - Severidad **baja**: no cambia ninguna clasificación ni deja pasar un dato inválido, así que no tiene impacto clínico.
+  - Prioridad **media**: un mensaje equivocado confunde a quien usa la API y conviene corregirlo pronto.
+  - Estado **Listo**: lo corregimos (fase GREEN) y verificamos que el test pase.
+- Si da el tiempo, mostrar GCL-53 en Jira para que se vea el ciclo de vida completo del defecto.
 - Pase a Kiara: "Kiara cierra con las métricas y nuestra recomendación."
 
 ## Slide 12: Resultados frente a los criterios de salida (Kiara, ~0:40) · EN CURSO

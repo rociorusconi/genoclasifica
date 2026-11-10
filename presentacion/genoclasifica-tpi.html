@@ -528,13 +528,13 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
     <div class="bar"></div>
     <h2 class="h2 reveal">Qué probamos <span>y cómo</span></h2>
     <div class="left">
-        <div class="note reveal d1"><b>Implementación de referencia propia</b> en Java 21 + Spring Boot (RF-01 a RF-10). IA simulada.</div>
+        <div class="note reveal d1"><b>Implementación de referencia propia</b> en Java 21 + Spring Boot (con las reglas del enunciado). IA simulada.</div>
         <div class="inout reveal d2">
             <div class="in"><div class="kicker">Dentro</div><ul>
-                <li>Reglas RF-01 a RF-10</li>
+                <li>Reglas de calidad, contaminación y confianza</li>
                 <li>API para el LIMS</li>
                 <li>Revisión y firma</li>
-                <li>Informe PDF</li>
+                <li>Emisión del informe</li>
                 <li>Portal mínimo</li>
             </ul></div>
             <div class="out"><div class="kicker">Fuera</div><ul>
@@ -542,6 +542,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <li>Carga y disponibilidad</li>
                 <li>Producción</li>
                 <li>Datos reales</li>
+                <li>Reclasificación, auditoría y versiones (no implementadas)</li>
             </ul></div>
         </div>
     </div>
@@ -553,7 +554,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <tr><td>Calidad de los tests</td><td>Unitario</td><td>Mutación</td><td>PIT</td></tr>
                 <tr><td>API REST / LIMS</td><td>Integración</td><td>Caja negra y gris</td><td>Spring Boot Test, Postman</td></tr>
                 <tr><td>Revisión y firma</td><td>Aceptación</td><td>BDD</td><td>Cucumber</td></tr>
-                <tr><td>Combinaciones</td><td>Sistema</td><td>Pairwise</td><td>PICT</td></tr>
+                <tr><td>Combinaciones</td><td>Sistema</td><td>Pairwise</td><td>Diseño manual + JUnit&nbsp;5</td></tr>
                 <tr><td>Portal</td><td>Sistema</td><td>Exploratoria y E2E</td><td>Selenium</td></tr>
             </tbody>
         </table>
@@ -633,12 +634,12 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
         <table>
             <thead><tr><th>Técnica</th><th>Ejemplo</th><th>Requisitos</th><th>Casos</th></tr></thead>
             <tbody>
-                <tr class="q30"><td>Partición de equivalencia y valores límite</td><td>Q30 en 79,9 / 80,0 / 80,1</td><td>RF-02, RF-03, RF-05</td><td>37 casos</td></tr>
+                <tr class="q30"><td>Partición de equivalencia y valores límite</td><td>Q30 en 79,9 / 80,0 / 80,1</td><td>RF-02, RF-03, RF-05</td><td>41 casos</td></tr>
                 <tr><td>Tablas de decisión</td><td>Emisión del informe: muestra aceptada + variantes patogénicas + firma</td><td>RF-06, RF-07</td><td>2 tablas, 9 reglas</td></tr>
                 <tr><td>Transición de estados</td><td>Ciclo de vida de la muestra</td><td>RF-01, RF-06, RF-08</td><td>12 válidas, 11 inválidas</td></tr>
-                <tr><td>Caja gris</td><td>El hash del PDF emitido no cambia tras una reclasificación</td><td>RF-08</td><td>4 casos</td></tr>
+                <tr><td>Caja gris</td><td>Muestra bloqueada: nunca llega a 'Informe emitido'</td><td>RF-03, RF-07</td><td>4 diseñados, 1 ejecutado</td></tr>
                 <tr><td>Pairwise</td><td>4 parámetros: 54 combinaciones → 9 casos (83&nbsp;%&nbsp;menos)</td><td>Varios</td><td>9 casos</td></tr>
-                <tr class="q30"><td>Caja blanca</td><td>ControlCalidad: 3 caminos independientes</td><td>RF-02</td><td>100 % líneas y ramas</td></tr>
+                <tr class="q30"><td>Caja blanca</td><td>4 reglas de umbral: 100 % de ramas</td><td>RF-02, RF-03, RF-05</td><td>+2 casos encontrados</td></tr>
             </tbody>
         </table>
     </div>
@@ -783,12 +784,12 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <div class="ficha">
                     <div class="ficha-h">Defecto de ejemplo</div>
                     <dl>
-                        <div><dt>ID</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
-                        <div><dt>Título</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
-                        <div><dt>Severidad</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
-                        <div><dt>Prioridad</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
-                        <div><dt>Evidencia</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
-                        <div><dt>Estado</dt><dd><span class="todo">[COMPLETAR]</span></dd></div>
+                        <div><dt>ID</dt><dd>GCL-53</dd></div>
+                        <div><dt>Título</dt><dd>Mensaje de error incorrecto con cobertura vacía</dd></div>
+                        <div><dt>Severidad</dt><dd>Baja</dd></div>
+                        <div><dt>Prioridad</dt><dd>Media</dd></div>
+                        <div><dt>Evidencia</dt><dd>Test CP-COB-08 en fase RED</dd></div>
+                        <div><dt>Estado</dt><dd>Listo (corregido y verificado)</dd></div>
                     </dl>
                 </div>
             </div>
