@@ -1,15 +1,20 @@
 package com.example.genoclasifica.api;
 
+import com.example.genoclasifica.Categoria;
 import com.example.genoclasifica.muestra.Muestra;
 import com.example.genoclasifica.muestra.MuestraService;
 import com.example.genoclasifica.muestra.SolicitudRecepcion;
 import com.example.genoclasifica.seguridad.Rol;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/samples")
@@ -43,6 +48,16 @@ public class MuestraController {
     public MuestraResponse firmar(@PathVariable String codigo, @AuthenticationPrincipal Jwt token) {
         Rol rol = Rol.valueOf(token.getClaimAsString("rol"));
         return MuestraResponse.de(service.firmar(codigo, token.getSubject(), rol));
+    }
+
+    // Sin parámetros devuelve todas. La categoría es la final, la que quedó después de procesar.
+    @GetMapping
+    public List<MuestraResponse> listar(@RequestParam(required = false) String gen,
+                                        @RequestParam(required = false) Categoria categoria,
+                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+        String genBuscado = gen == null || gen.isBlank() ? null : gen.trim();
+        return service.listar(genBuscado, categoria, desde, hasta).stream().map(MuestraResponse::de).toList();
     }
 
     @GetMapping("/{codigo}")

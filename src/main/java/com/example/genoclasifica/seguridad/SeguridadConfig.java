@@ -38,6 +38,8 @@ public class SeguridadConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                // Archivos del portal: no tienen datos, los datos se piden a la API con el token
+                .requestMatchers(HttpMethod.GET, "/", "/index.html", "/portal.js", "/portal.css", "/favicon.ico").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/samples").hasAnyRole("TECNICO", "ADMINISTRADOR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/samples/*/process").hasAnyRole("BIOINFORMATICO", "ADMINISTRADOR")
                 // La firma la controla el servicio, para responder con el motivo del rechazo (CP-ST-INV-02)

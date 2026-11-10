@@ -1,15 +1,18 @@
 package com.example.genoclasifica.muestra;
 
+import com.example.genoclasifica.Categoria;
 import com.example.genoclasifica.ClasificadorConfianza;
 import com.example.genoclasifica.ControlCalidad;
 import com.example.genoclasifica.ControlContaminacion;
 import com.example.genoclasifica.seguridad.Rol;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.util.HexFormat;
 import java.util.List;
 
@@ -100,6 +103,17 @@ public class MuestraService {
     @Transactional(readOnly = true)
     public Muestra buscar(String codigo) {
         return muestras.findByCodigo(codigo).orElseThrow(() -> new MuestraNoEncontradaException(codigo));
+    }
+
+    // Filtros del portal (RF-09). Gen y categoría se buscan en la misma variante; las fechas son inclusivas.
+    @Transactional(readOnly = true)
+    public List<Muestra> listar(String gen, Categoria categoria, LocalDate desde, LocalDate hasta) {
+        return muestras.findAll(Sort.by(Sort.Direction.DESC, "id")).stream()
+            .filter(m -> desde == null || !m.getFechaRecepcion().isBefore(desde))
+            .filter(m -> hasta == null || !m.getFechaRecepcion().isAfter(hasta))
+            .filter(m -> (gen == null && categoria == null) || m.getVariantes().stream().anyMatch(v ->
+                (gen == null || v.getGen().equalsIgnoreCase(gen)) && (categoria == null || categoria == v.getCategoria())))
+            .toList();
     }
 
     private boolean esIntegra(String contenido, String checksumDeclarado) {
