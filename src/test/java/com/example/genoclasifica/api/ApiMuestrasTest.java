@@ -14,6 +14,8 @@ import java.security.MessageDigest;
 import java.util.HexFormat;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -188,5 +190,29 @@ class ApiMuestrasTest {
         mvc.perform(get("/index.html"))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("GenoClasifica")));
+    }
+
+    @Test
+    void filtraPorGenCategoriaYFecha() throws Exception { // RF-09
+        recibirYProcesar("API-0010", 1.0, "PATOGENICA");
+        recibirYProcesar("API-0011", 1.0, "BENIGNA");
+        String hoy = java.time.LocalDate.now().toString();
+        String ayer = java.time.LocalDate.now().minusDays(1).toString();
+
+        mvc.perform(conToken(get("/api/v1/samples?gen=brca1&categoria=PATOGENICA&desde=" + hoy + "&hasta=" + hoy), "auditor"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[*].codigo", hasItem("API-0010")))
+            .andExpect(jsonPath("$[*].codigo", not(hasItem("API-0011"))));
+        mvc.perform(conToken(get("/api/v1/samples?gen=TP53"), "auditor"))
+            .andExpect(jsonPath("$[*].codigo", not(hasItem("API-0010"))));
+        mvc.perform(conToken(get("/api/v1/samples?hasta=" + ayer), "auditor"))
+            .andExpect(jsonPath("$[*].codigo", not(hasItem("API-0010"))));
+    }
+
+    @Test
+    void filtroConCategoriaInexistenteDevuelve400() throws Exception {
+        mvc.perform(conToken(get("/api/v1/samples?categoria=OTRA"), "auditor"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.mensaje").value(containsString("categoria")));
     }
 }

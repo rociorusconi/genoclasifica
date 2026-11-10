@@ -11,6 +11,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -52,6 +53,12 @@ public class ManejadorDeErrores {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> jsonIlegible(HttpMessageNotReadableException e) {
         return error(HttpStatus.BAD_REQUEST, "El cuerpo del pedido no es un JSON válido");
+    }
+
+    // Por ejemplo ?categoria=OTRA o ?desde=ayer en los filtros del portal
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> parametroInvalido(MethodArgumentTypeMismatchException e) {
+        return error(HttpStatus.BAD_REQUEST, "Valor inválido para el filtro " + e.getName() + ": " + e.getValue());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
