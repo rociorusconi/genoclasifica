@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Variante.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.example.genoclasifica.muestra</a> &gt; <span class="el_source">Variante.java</span></div><h1>Variante.java</h1><pre class="source lang-java linenums">package com.example.genoclasifica.muestra;
+
+import com.example.genoclasifica.Categoria;
+import com.example.genoclasifica.ResultadoClasificacion;
+import jakarta.persistence.*;
+
+@Entity
+public class Variante {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @ManyToOne(optional = false)
+    private Muestra muestra;
+
+    private String gen;
+    private Integer posicion;
+    private String tipo;
+
+    // Lo que propone el modelo de IA (simulado)
+    @Enumerated(EnumType.STRING)
+    private Categoria categoriaPropuesta;
+    private Double confianza;
+
+    // Lo que queda después de aplicar el umbral de confianza
+    @Enumerated(EnumType.STRING)
+    private Categoria categoria;
+    private boolean requiereRevision;
+    private boolean exigeFirma;
+
+<span class="fc" id="L32">    protected Variante() {</span>
+<span class="fc" id="L33">    }</span>
+
+<span class="fc" id="L35">    public Variante(String gen, Integer posicion, String tipo, Categoria categoriaPropuesta, Double confianza) {</span>
+<span class="fc" id="L36">        this.gen = gen;</span>
+<span class="fc" id="L37">        this.posicion = posicion;</span>
+<span class="fc" id="L38">        this.tipo = tipo;</span>
+<span class="fc" id="L39">        this.categoriaPropuesta = categoriaPropuesta;</span>
+<span class="fc" id="L40">        this.confianza = confianza;</span>
+<span class="fc" id="L41">    }</span>
+
+    void aplicar(ResultadoClasificacion resultado) {
+<span class="fc" id="L44">        this.categoria = resultado.categoria();</span>
+<span class="fc" id="L45">        this.requiereRevision = resultado.requiereRevision();</span>
+<span class="fc" id="L46">        this.exigeFirma = resultado.exigeFirma();</span>
+<span class="fc" id="L47">    }</span>
+
+    void asignarMuestra(Muestra muestra) {
+<span class="fc" id="L50">        this.muestra = muestra;</span>
+<span class="fc" id="L51">    }</span>
+
+<span class="nc" id="L53">    public Long getId() { return id; }</span>
+<span class="fc" id="L54">    public String getGen() { return gen; }</span>
+<span class="fc" id="L55">    public Integer getPosicion() { return posicion; }</span>
+<span class="fc" id="L56">    public String getTipo() { return tipo; }</span>
+<span class="fc" id="L57">    public Categoria getCategoriaPropuesta() { return categoriaPropuesta; }</span>
+<span class="fc" id="L58">    public Double getConfianza() { return confianza; }</span>
+<span class="fc" id="L59">    public Categoria getCategoria() { return categoria; }</span>
+<span class="fc" id="L60">    public boolean isRequiereRevision() { return requiereRevision; }</span>
+<span class="fc" id="L61">    public boolean isExigeFirma() { return exigeFirma; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

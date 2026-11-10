@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClasificadorConfianza.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.example.genoclasifica</a> &gt; <span class="el_source">ClasificadorConfianza.java</span></div><h1>ClasificadorConfianza.java</h1><pre class="source lang-java linenums">package com.example.genoclasifica;
+
+<span class="fc" id="L3">public class ClasificadorConfianza {</span>
+
+    private static final double UMBRAL_CONFIANZA = 70.0;
+
+    public ResultadoClasificacion clasificar(Categoria categoria, Double confianza) {
+<span class="fc bfc" id="L8" title="All 6 branches covered.">        if (confianza == null || confianza &lt; 0.0 || confianza &gt; 100.0) {</span>
+<span class="fc" id="L9">            throw new IllegalArgumentException(&quot;La confianza debe estar entre 0 y 100&quot;);</span>
+        }
+
+        // Bajo 70 % no se asigna categoría: la variante queda para revisión
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (confianza &lt; UMBRAL_CONFIANZA) {</span>
+<span class="fc" id="L14">            return ResultadoClasificacion.paraRevision();</span>
+        }
+<span class="fc" id="L16">        return ResultadoClasificacion.clasificada(categoria);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

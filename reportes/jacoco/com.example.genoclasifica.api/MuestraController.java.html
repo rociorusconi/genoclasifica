@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MuestraController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.example.genoclasifica.api</a> &gt; <span class="el_source">MuestraController.java</span></div><h1>MuestraController.java</h1><pre class="source lang-java linenums">package com.example.genoclasifica.api;
+
+import com.example.genoclasifica.Categoria;
+import com.example.genoclasifica.muestra.Muestra;
+import com.example.genoclasifica.muestra.MuestraService;
+import com.example.genoclasifica.muestra.SolicitudRecepcion;
+import com.example.genoclasifica.seguridad.Rol;
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/v1/samples&quot;)
+public class MuestraController {
+
+    private final MuestraService service;
+
+<span class="fc" id="L25">    public MuestraController(MuestraService service) {</span>
+<span class="fc" id="L26">        this.service = service;</span>
+<span class="fc" id="L27">    }</span>
+
+    // 201 si se recibe, 409 si la corrida ya se procesó, 422 si el archivo no es íntegro (RF-01)
+    @PostMapping
+    public ResponseEntity&lt;MuestraResponse&gt; recibir(@Valid @RequestBody SolicitudRecepcion solicitud) {
+<span class="fc" id="L32">        Muestra muestra = service.recibir(solicitud);</span>
+<span class="fc bfc" id="L33" title="All 3 branches covered.">        HttpStatus status = switch (muestra.getEstado()) {</span>
+<span class="fc" id="L34">            case RECHAZADA_DUPLICADA -&gt; HttpStatus.CONFLICT;</span>
+<span class="fc" id="L35">            case RECHAZADA_INTEGRIDAD -&gt; HttpStatus.UNPROCESSABLE_CONTENT;</span>
+<span class="fc" id="L36">            default -&gt; HttpStatus.CREATED;</span>
+        };
+<span class="fc" id="L38">        return ResponseEntity.status(status).body(MuestraResponse.de(muestra));</span>
+    }
+
+    @PostMapping(&quot;/{codigo}/process&quot;)
+    public MuestraResponse procesar(@PathVariable String codigo) {
+<span class="fc" id="L43">        return MuestraResponse.de(service.procesar(codigo));</span>
+    }
+
+    // Quién firma y con qué rol sale del token, no de lo que mande el cliente
+    @PostMapping(&quot;/{codigo}/sign&quot;)
+    public MuestraResponse firmar(@PathVariable String codigo, @AuthenticationPrincipal Jwt token) {
+<span class="fc" id="L49">        Rol rol = Rol.valueOf(token.getClaimAsString(&quot;rol&quot;));</span>
+<span class="fc" id="L50">        return MuestraResponse.de(service.firmar(codigo, token.getSubject(), rol));</span>
+    }
+
+    // Sin parámetros devuelve todas. La categoría es la final, la que quedó después de procesar.
+    @GetMapping
+    public List&lt;MuestraResponse&gt; listar(@RequestParam(required = false) String gen,
+                                        @RequestParam(required = false) Categoria categoria,
+                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
+<span class="pc bpc" id="L59" title="1 of 4 branches missed.">        String genBuscado = gen == null || gen.isBlank() ? null : gen.trim();</span>
+<span class="fc" id="L60">        return service.listar(genBuscado, categoria, desde, hasta).stream().map(MuestraResponse::de).toList();</span>
+    }
+
+    @GetMapping(&quot;/{codigo}&quot;)
+    public MuestraResponse consultar(@PathVariable String codigo) {
+<span class="fc" id="L65">        return MuestraResponse.de(service.buscar(codigo));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

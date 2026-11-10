@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManejadorDeErrores.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.example.genoclasifica.api</a> &gt; <span class="el_source">ManejadorDeErrores.java</span></div><h1>ManejadorDeErrores.java</h1><pre class="source lang-java linenums">package com.example.genoclasifica.api;
+
+import com.example.genoclasifica.muestra.FirmaRequeridaException;
+import com.example.genoclasifica.muestra.MuestraNoEncontradaException;
+import com.example.genoclasifica.muestra.PermisoDenegadoException;
+import com.example.genoclasifica.muestra.TransicionInvalidaException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+// Convierte cada error del sistema en un código HTTP con un mensaje en JSON
+@RestControllerAdvice
+<span class="fc" id="L22">public class ManejadorDeErrores {</span>
+
+    @ExceptionHandler(MuestraNoEncontradaException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; noEncontrada(MuestraNoEncontradaException e) {
+<span class="fc" id="L26">        return error(HttpStatus.NOT_FOUND, e.getMessage());</span>
+    }
+
+    // Va antes que TransicionInvalida: la falta de firma es 403, como pide CP-ST-INV-01
+    @ExceptionHandler(FirmaRequeridaException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; firmaRequerida(FirmaRequeridaException e) {
+<span class="fc" id="L32">        return error(HttpStatus.FORBIDDEN, e.getMessage());</span>
+    }
+
+    @ExceptionHandler(PermisoDenegadoException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; permisoDenegado(PermisoDenegadoException e) {
+<span class="fc" id="L37">        return error(HttpStatus.FORBIDDEN, e.getMessage());</span>
+    }
+
+    @ExceptionHandler(TransicionInvalidaException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; transicionInvalida(TransicionInvalidaException e) {
+<span class="fc" id="L42">        return error(HttpStatus.CONFLICT, e.getMessage());</span>
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; datosInvalidos(MethodArgumentNotValidException e) {
+<span class="fc" id="L47">        String detalle = e.getBindingResult().getFieldErrors().stream()</span>
+<span class="fc" id="L48">            .map(f -&gt; f.getField() + &quot;: &quot; + f.getDefaultMessage())</span>
+<span class="fc" id="L49">            .collect(Collectors.joining(&quot;; &quot;));</span>
+<span class="fc" id="L50">        return error(HttpStatus.BAD_REQUEST, &quot;Datos inválidos: &quot; + detalle);</span>
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; jsonIlegible(HttpMessageNotReadableException e) {
+<span class="nc" id="L55">        return error(HttpStatus.BAD_REQUEST, &quot;El cuerpo del pedido no es un JSON válido&quot;);</span>
+    }
+
+    // Por ejemplo ?categoria=OTRA o ?desde=ayer en los filtros del portal
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; parametroInvalido(MethodArgumentTypeMismatchException e) {
+<span class="fc" id="L61">        return error(HttpStatus.BAD_REQUEST, &quot;Valor inválido para el filtro &quot; + e.getName() + &quot;: &quot; + e.getValue());</span>
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; valorInvalido(IllegalArgumentException e) {
+<span class="nc" id="L66">        return error(HttpStatus.BAD_REQUEST, e.getMessage());</span>
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; codigoRepetido(DataIntegrityViolationException e) {
+<span class="nc" id="L71">        return error(HttpStatus.CONFLICT, &quot;Ya existe una muestra con ese código&quot;);</span>
+    }
+
+    private ResponseEntity&lt;Map&lt;String, Object&gt;&gt; error(HttpStatus status, String mensaje) {
+<span class="fc" id="L75">        Map&lt;String, Object&gt; cuerpo = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L76">        cuerpo.put(&quot;status&quot;, status.value());</span>
+<span class="fc" id="L77">        cuerpo.put(&quot;mensaje&quot;, mensaje);</span>
+<span class="fc" id="L78">        return ResponseEntity.status(status).body(cuerpo);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
