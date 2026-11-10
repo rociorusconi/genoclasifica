@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MuestraResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.example.genoclasifica.api</a> &gt; <span class="el_source">MuestraResponse.java</span></div><h1>MuestraResponse.java</h1><pre class="source lang-java linenums">package com.example.genoclasifica.api;
+
+import com.example.genoclasifica.Categoria;
+import com.example.genoclasifica.muestra.Muestra;
+import com.example.genoclasifica.muestra.Variante;
+
+import java.time.LocalDate;
+import java.util.List;
+
+// Lo que devuelve la API: se arma a partir de la entidad para no exponerla directamente
+<span class="fc" id="L11">public record MuestraResponse(String codigo, String idCorrida, String estado, Double q30, Double contaminacion,</span>
+                              LocalDate fechaRecepcion, String firmadaPor, List&lt;VarianteResponse&gt; variantes) {
+
+<span class="fc" id="L14">    public record VarianteResponse(String gen, Integer posicion, String tipo, Categoria categoriaPropuesta,</span>
+                                   Double confianza, Categoria categoria, boolean requiereRevision, boolean exigeFirma) {
+
+        static VarianteResponse de(Variante v) {
+<span class="fc" id="L18">            return new VarianteResponse(v.getGen(), v.getPosicion(), v.getTipo(), v.getCategoriaPropuesta(),</span>
+<span class="fc" id="L19">                v.getConfianza(), v.getCategoria(), v.isRequiereRevision(), v.isExigeFirma());</span>
+        }
+    }
+
+    public static MuestraResponse de(Muestra m) {
+<span class="fc" id="L24">        return new MuestraResponse(m.getCodigo(), m.getIdCorrida(), m.getEstado().getDescripcion(), m.getQ30(),</span>
+<span class="fc" id="L25">            m.getContaminacion(), m.getFechaRecepcion(), m.getFirmadaPor(),</span>
+<span class="fc" id="L26">            m.getVariantes().stream().map(VarianteResponse::de).toList());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

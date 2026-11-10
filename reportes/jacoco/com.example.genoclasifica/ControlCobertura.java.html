@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ControlCobertura.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.example.genoclasifica</a> &gt; <span class="el_source">ControlCobertura.java</span></div><h1>ControlCobertura.java</h1><pre class="source lang-java linenums">package com.example.genoclasifica;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+<span class="fc" id="L7">public class ControlCobertura {</span>
+
+    private static final int UMBRAL_COBERTURA = 30;
+
+    public boolean esEvaluable(Integer cobertura) {
+<span class="fc bfc" id="L12" title="All 2 branches covered.">        if (cobertura == null) {</span>
+<span class="fc" id="L13">            throw new IllegalArgumentException(&quot;La cobertura es obligatoria&quot;);</span>
+        }
+<span class="fc bfc" id="L15" title="All 2 branches covered.">        if (cobertura &lt; 0) {</span>
+<span class="fc" id="L16">            throw new IllegalArgumentException(&quot;La cobertura no puede ser negativa&quot;);</span>
+        }
+
+        // Con menos de 30 lecturas la posición queda &quot;no evaluable&quot;
+<span class="fc bfc" id="L20" title="All 2 branches covered.">        return cobertura &gt;= UMBRAL_COBERTURA;</span>
+    }
+
+    public List&lt;Integer&gt; posicionesNoEvaluables(Map&lt;Integer, Integer&gt; coberturaPorPosicion) {
+<span class="fc" id="L24">        return coberturaPorPosicion.entrySet().stream()</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">            .filter(entrada -&gt; !esEvaluable(entrada.getValue()))</span>
+<span class="fc" id="L26">            .map(Map.Entry::getKey)</span>
+<span class="fc" id="L27">            .sorted()</span>
+<span class="fc" id="L28">            .toList();</span>
+    }
+
+    public String resumenNoEvaluables(Map&lt;Integer, Integer&gt; coberturaPorPosicion) {
+<span class="fc" id="L32">        List&lt;Integer&gt; posiciones = posicionesNoEvaluables(coberturaPorPosicion);</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (posiciones.isEmpty()) {</span>
+<span class="fc" id="L34">            return &quot;ninguna&quot;;</span>
+        }
+<span class="fc" id="L36">        return posiciones.stream()</span>
+<span class="fc" id="L37">            .map(String::valueOf)</span>
+<span class="fc" id="L38">            .collect(Collectors.joining(&quot;, &quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
