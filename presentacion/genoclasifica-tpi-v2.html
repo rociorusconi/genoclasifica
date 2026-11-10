@@ -387,7 +387,7 @@ table.grid td:first-child { font-weight: 700; }
 .reco13 ol.why li { padding: 3px 0; }
 .reco13 ol.why li::marker { font-family: var(--font-display); font-weight: 800; color: #ff6a57; }
 /* Frase de cierre destacada */
-.close13 { position: absolute; left: 160px; right: 160px; top: 656px; border-left: 10px solid var(--red); background: var(--soft); padding: 18px 32px; font: 700 27px/1.3 var(--font-display); letter-spacing: -0.01em; }
+.close13 { position: absolute; left: 160px; right: 160px; top: 630px; border-left: 10px solid var(--red); background: var(--soft); padding: 18px 32px; font: 700 27px/1.3 var(--font-display); letter-spacing: -0.01em; }
 .close13 span { color: var(--red); }
 .s13 .lim13 { top: 790px; }
 .lim13 { position: absolute; left: 160px; right: 160px; top: 690px; }
@@ -837,7 +837,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <tr><td class="nm">Patogénicas como benignas</td><td>≤ 1 %</td><td>No medido</td><td><span class="sem na">–</span></td></tr>
                 <tr><td class="nm">Concordancia</td><td>≥ 95 %</td><td>No medido</td><td><span class="sem na">–</span></td></tr>
                 <tr class="grp"><td colspan="4">Proceso</td></tr>
-                <tr><td class="nm">Casos P1 y P2 aprobados</td><td>100 %</td><td>P1 fallidos en la ejecución manual</td><td><span class="sem no">✗</span></td></tr>
+                <tr><td class="nm">Casos P1 y P2 aprobados</td><td>100 %</td><td>P1 automatizados aprobados (91/91); fallidos en ejecución manual (MAN-05/06)</td><td><span class="sem no">✗</span></td></tr>                
                 <tr><td class="nm">Defectos críticos o altos abiertos</td><td>0</td><td>3</td><td><span class="sem no">✗</span></td></tr>
                 <tr><td class="nm">Cobertura JaCoCo</td><td>≥ 80 %</td><td>94,0 % de líneas · 87,9 % de ramas</td><td><span class="sem ok">✓</span></td></tr>
                 <tr><td class="nm">Puntaje de mutación PIT</td><td>≥ 75 %</td><td>100 % (41 de 41 mutantes)</td><td><span class="sem ok">✓</span></td></tr>
@@ -866,8 +866,8 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
             <li>Casos P1 fallidos en la ejecución manual (MAN-05 y MAN-06). La reclasificación y la auditoría, en cambio, ya se probaron y funcionan.</li>
         </ol>
     </div>
-    <div class="close13 reveal d2">Todas las pruebas automatizadas pasaron, y los problemas graves aparecieron en las manuales y exploratorias: <span>el sistema se verifica, pero no se valida.</span></div>
-    <div class="lim13 reveal d3">
+        <div class="close13 reveal d2">Las pruebas automatizadas de nuestra implementación de referencia finalizaron correctamente. Sin embargo, las pruebas manuales y exploratorias permitieron identificar defectos críticos y altos que impiden recomendar la liberación. Además, no pudimos validar el desempeño del modelo de IA real.</div>    
+        <div class="lim13 reveal d3">
         <div class="kicker">Riesgos residuales y limitaciones</div>
         <ul>
             <li>Independencia parcial: la implementación de referencia es nuestra.</li>
