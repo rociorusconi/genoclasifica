@@ -328,6 +328,9 @@ table.grid td:first-child { font-weight: 700; }
 .s8r { top: 662px; }
 .s8note { position: absolute; left: 160px; top: 912px; font-size: 22px; color: var(--muted); }
 .s8note .todo { font-size: 20px; }
+/* Línea destacada: resultado de la corrida final */
+.s8run { position: absolute; right: 160px; top: 588px; background: var(--ink); color: #fff; font: 800 28px var(--font-display); padding: 10px 22px; }
+.s8run span { color: #ff6a57; }
 /* Slide "Ejecución manual y defectos": dos columnas + ficha de defecto */
 .exec2 { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; }
 .xlist { list-style: none; border-top: 3px solid var(--ink); margin-bottom: 26px; }
@@ -336,6 +339,9 @@ table.grid td:first-child { font-weight: 700; }
 .xtext { font-size: 25px; line-height: 1.35; border-top: 3px solid var(--ink); padding-top: 16px; }
 .xsev { margin: 18px 0 22px; }
 .xsev .todo, .s9 .res .todo { font-size: 22px; }
+.xsev { font-size: 25px; line-height: 1.3; }
+.xsev b { font-family: var(--font-display); color: var(--red); }
+.xres { font-size: 23px; line-height: 1.4; }
 .ficha { border: 3px solid var(--ink); }
 .ficha-h { background: var(--ink); color: #fff; font: 700 18px var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; padding: 10px 20px; }
 .ficha dl { display: grid; grid-template-columns: 1fr 1fr; }
@@ -374,6 +380,16 @@ table.grid td:first-child { font-weight: 700; }
 .reco13 .todo { background: rgba(224,48,30,.18); color: #ffb3a8; border-color: #ff6a57; }
 .reco13 .main .todo { font-size: 30px; vertical-align: middle; }
 .reco13 .why .todo { font-size: 22px; }
+.s13 .reco13 { top: 300px; padding: 30px 48px; }
+.s13 .reco13 .k { margin-bottom: 8px; }
+.s13 .reco13 .main { font-size: 76px; line-height: 1; color: #ff6a57; }
+.reco13 ol.why { margin-top: 18px; padding-left: 34px; font-size: 24px; line-height: 1.35; }
+.reco13 ol.why li { padding: 3px 0; }
+.reco13 ol.why li::marker { font-family: var(--font-display); font-weight: 800; color: #ff6a57; }
+/* Frase de cierre destacada */
+.close13 { position: absolute; left: 160px; right: 160px; top: 656px; border-left: 10px solid var(--red); background: var(--soft); padding: 18px 32px; font: 700 27px/1.3 var(--font-display); letter-spacing: -0.01em; }
+.close13 span { color: var(--red); }
+.s13 .lim13 { top: 790px; }
 .lim13 { position: absolute; left: 160px; right: 160px; top: 690px; }
 .lim13 ul { list-style: none; border-top: 3px solid var(--ink); }
 .lim13 li { font-size: 25px; line-height: 1.3; padding: 13px 0 13px 44px; border-bottom: 1px solid #d6d6d6; position: relative; }
@@ -739,22 +755,24 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
      SLIDE 10 · Automatización, BDD y mutación · Kalil (en curso)
      =================================================== -->
 <section class="slide s8">
-    <div class="top"><span>Automatización</span><span class="right"><span class="tag-curso">En curso</span><span class="num">10 / 13</span></span></div>
+    <div class="top"><span>Automatización</span><span class="right"><span class="num">10 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">Pruebas <span>automatizadas</span></h2>
     <!-- Bloque 1: qué automatizamos -->
     <div class="body">
         <div class="kicker reveal d1">Qué automatizamos</div>
-        <div class="cols3">
+        <div class="cols4">
             <div class="tool reveal d1"><div class="name">JUnit 5 + Spring Boot Test</div><div class="kind">Unitarias · integración · regresión</div></div>
             <div class="tool reveal d2"><div class="name">Postman</div><div class="kind">API</div><p>Login, permisos por rol, datos inválidos o repetidos.</p></div>
             <div class="tool reveal d3"><div class="name">Cucumber</div><div class="kind">BDD</div><p>Given-When-Then de revisión y firma, y umbral de confianza.</p></div>
+            <div class="tool reveal d4"><div class="name">Selenium</div><div class="kind">Portal</div><p>Flujo de firma, permisos, muestra bloqueada y filtros.</p></div>
         </div>
     </div>
     <!-- Bloque 2: ¿las pruebas detectan errores? -->
     <div class="kicker s8k reveal d4">¿Las pruebas detectan errores?</div>
+    <div class="s8run reveal d4">Corrida final: <span>108 tests, 0 fallas</span></div>
     <div class="results s8r reveal d4">
-        <div class="res"><div><div class="t">JaCoCo · cobertura</div><div class="goal">objetivo 80 %</div></div><div class="val">95,7 %<small>de líneas · 94,1 % de ramas</small></div></div>
+        <div class="res"><div><div class="t">JaCoCo · cobertura</div><div class="goal">objetivo 80 %</div></div><div class="val">96,3 %<small>de líneas · 89,9 % de ramas</small></div></div>
         <div class="res"><div><div class="t">PIT · mutación</div><div class="goal">objetivo 75 %</div></div><div class="val">100 %<small>41 de 41 mutantes eliminados · reglas de umbral</small></div></div>
     </div>
     <p class="s8note reveal d5">Qué no automatizamos y por qué: Exploración del portal y legibilidad del informe (juicio humano), pruebas únicas y el modelo de IA real (sin acceso).</p>
@@ -765,7 +783,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
      SLIDE 11 · Ejecución manual y defectos · Kalil (en curso)
      =================================================== -->
 <section class="slide s9">
-    <div class="top"><span>Ejecución manual y defectos</span><span class="right"><span class="tag-curso">En curso</span><span class="num">11 / 13</span></span></div>
+    <div class="top"><span>Ejecución manual y defectos</span><span class="right"><span class="num">11 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">Ejecución manual <span>y defectos</span></h2>
     <div class="body">
@@ -778,22 +796,22 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                     <li>Sesiones exploratorias del portal</li>
                     <li><b>Selenium</b> automatiza el flujo principal del portal: búsqueda, filtros y revisión y firma</li>
                 </ul>
-                <div class="res"><div class="t">Resultado</div><span class="todo">[COMPLETAR: aprobados / fallidos / bloqueados]</span></div>
+                <div class="res"><div class="t">Resultado</div><p class="xres"><b>Manual por API:</b> 4 de 6 aprobados · <b>Portal:</b> 5 de 6 aprobados · <b>Exploratoria:</b> 1 defecto crítico · <b>Selenium:</b> 5 de 5</p></div>
             </div>
             <!-- Bloque 2: defectos en Jira -->
             <div class="reveal d3">
                 <div class="kicker">Defectos en Jira</div>
                 <p class="xtext">Severidad según el <b>impacto clínico</b>, prioridad, evidencia y ciclo de vida.</p>
-                <p class="xsev"><span class="todo">[COMPLETAR: defectos por severidad]</span></p>
+                <p class="xsev"><b>5 defectos:</b> 1 crítico · 2 altos · 2 bajos (4 abiertos)</p>
                 <div class="ficha">
                     <div class="ficha-h">Defecto de ejemplo</div>
                     <dl>
-                        <div><dt>ID</dt><dd>GCL-53</dd></div>
-                        <div><dt>Título</dt><dd>Mensaje de error incorrecto con cobertura vacía</dd></div>
-                        <div><dt>Severidad</dt><dd>Baja</dd></div>
-                        <div><dt>Prioridad</dt><dd>Media</dd></div>
-                        <div><dt>Evidencia</dt><dd>Test CP-COB-08 en fase RED</dd></div>
-                        <div><dt>Estado</dt><dd>Listo (corregido y verificado)</dd></div>
+                        <div><dt>ID</dt><dd>GCL-56</dd></div>
+                        <div><dt>Título</dt><dd>Se emite el informe con una variante "requiere revisión" sin revisión del genetista</dd></div>
+                        <div><dt>Severidad</dt><dd>Crítica</dd></div>
+                        <div><dt>Prioridad</dt><dd>Alta</dd></div>
+                        <div><dt>Evidencia</dt><dd>Sesión exploratoria del portal <span style="white-space:nowrap">(PDF de PORT-C)</span></dd></div>
+                        <div><dt>Estado</dt><dd>Abierto</dd></div>
                     </dl>
                 </div>
             </div>
@@ -806,7 +824,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
      SLIDE 12 · Resultados frente a los criterios de salida · Kiara (en curso)
      =================================================== -->
 <section class="slide s12">
-    <div class="top"><span>Resultados</span><span class="right"><span class="tag-curso">En curso</span><span class="num">12 / 13</span></span></div>
+    <div class="top"><span>Resultados</span><span class="right"><span class="num">12 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">Resultados frente a <span>los criterios de salida</span></h2>
     <div class="kpis reveal d1">
@@ -814,16 +832,16 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
             <thead><tr><th>KPI</th><th>Objetivo</th><th>Resultado</th><th>¿Cumple?</th></tr></thead>
             <tbody>
                 <tr class="grp"><td colspan="4">Modelo (simulado)</td></tr>
-                <tr><td class="nm">Sensibilidad</td><td>≥ 98 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
-                <tr><td class="nm">Patogénicas como benignas</td><td>≤ 1 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
-                <tr><td class="nm">Concordancia</td><td>≥ 95 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Sensibilidad</td><td>≥ 98 %</td><td>No medido</td><td><span class="sem na">–</span></td></tr>
+                <tr><td class="nm">Patogénicas como benignas</td><td>≤ 1 %</td><td>No medido</td><td><span class="sem na">–</span></td></tr>
+                <tr><td class="nm">Concordancia</td><td>≥ 95 %</td><td>No medido</td><td><span class="sem na">–</span></td></tr>
                 <tr class="grp"><td colspan="4">Proceso</td></tr>
-                <tr><td class="nm">Casos P1 y P2 aprobados</td><td>100 %</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
-                <tr><td class="nm">Defectos críticos o altos abiertos</td><td>0</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
-                <tr><td class="nm">Cobertura JaCoCo</td><td>≥ 80 %</td><td>95,7 % de líneas · 94,1 % de ramas</td><td><span class="sem ok">✓</span></td></tr>
+                <tr><td class="nm">Casos P1 y P2 aprobados</td><td>100 %</td><td>P1 fallidos y bloqueados</td><td><span class="sem no">✗</span></td></tr>
+                <tr><td class="nm">Defectos críticos o altos abiertos</td><td>0</td><td>3</td><td><span class="sem no">✗</span></td></tr>
+                <tr><td class="nm">Cobertura JaCoCo</td><td>≥ 80 %</td><td>96,3 % de líneas · 89,9 % de ramas</td><td><span class="sem ok">✓</span></td></tr>
                 <tr><td class="nm">Puntaje de mutación PIT</td><td>≥ 75 %</td><td>100 % (41 de 41 mutantes)</td><td><span class="sem ok">✓</span></td></tr>
                 <tr class="grp"><td colspan="4">Rendimiento</td></tr>
-                <tr><td class="nm">Búsqueda en el portal</td><td>&lt; 3 s</td><td><span class="todo">[COMPLETAR]</span></td><td><span class="todo">[COMPLETAR]</span></td></tr>
+                <tr><td class="nm">Búsqueda en el portal</td><td>&lt; 3 s</td><td>Milisegundos (4 muestras)</td><td><span class="sem ok">✓</span></td></tr>
                 <tr><td class="nm">Procesamiento por muestra<small>Nuestra implementación no procesa archivos del secuenciador</small></td><td>&lt; 2 h</td><td>No medible</td><td><span class="sem na">–</span></td></tr>
             </tbody>
         </table>
@@ -835,20 +853,24 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
      SLIDE 13 · ¿Liberamos la 4.2.0? (cierre) · Kiara (en curso)
      =================================================== -->
 <section class="slide s13">
-    <div class="top"><span>Conclusiones</span><span class="right"><span class="tag-curso">En curso</span><span class="num">13 / 13</span></span></div>
+    <div class="top"><span>Conclusiones</span><span class="right"><span class="num">13 / 13</span></span></div>
     <div class="bar"></div>
     <h2 class="h2 reveal">¿Liberamos <span>la 4.2.0?</span></h2>
     <div class="reco13 reveal d1">
         <div class="k">Recomendación</div>
-        <div class="main"><span class="todo">[COMPLETAR: liberar / liberar con condiciones / no liberar]</span></div>
-        <div class="why"><span class="todo">[COMPLETAR: 2 o 3 razones, según la regla de liberación del Definition of Done]</span></div>
+        <div class="main">No liberar</div>
+        <ol class="why">
+            <li>Un defecto crítico y dos altos abiertos: un informe puede salir con una variante dudosa sin que la revise un genetista, y el genetista firma sin ver la evidencia.</li>
+            <li>6 casos P1 bloqueados: la reclasificación, la auditoría y el registro de versiones no están implementados.</li>
+            <li>Las métricas del modelo no se pudieron medir.</li>
+        </ol>
     </div>
+    <div class="close13 reveal d2">Todas las pruebas automatizadas pasaron, y los problemas graves aparecieron en las manuales y exploratorias: <span>el sistema se verifica, pero no se valida.</span></div>
     <div class="lim13 reveal d3">
         <div class="kicker">Riesgos residuales y limitaciones</div>
         <ul>
             <li>Independencia parcial: la implementación de referencia es nuestra.</li>
-            <li>Recibimos la calidad, la cobertura y la contaminación ya calculadas: si el sistema real las calculara mal, no lo detectaríamos.</li>
-            <li>Sin el modelo de IA real ni pruebas de carga o disponibilidad.</li>
+            <li>Calidad, cobertura y contaminación nos llegan ya calculadas; sin el modelo de IA real ni pruebas de carga.</li>
         </ul>
     </div>
     <div class="ia">El uso de IA en este trabajo está declarado y documentado.</div>

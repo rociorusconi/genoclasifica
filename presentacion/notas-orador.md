@@ -101,47 +101,60 @@
 - La conclusión principal está abajo: los casos de caja negra de Q30 (CP-Q30-01 a 08) ya recorrían el 100 % del método (JaCoCo marcaba 100 % de líneas y de ramas), pero PIT encontró un mutante vivo, así que agregamos CP-Q30-09 (Q30 = 0).
 - La clase se hizo con TDD: primero el test en rojo, después el código mínimo para pasarlo y después el refactor.
 
-## Slide 10: Pruebas automatizadas (Kalil, ~1:40) · EN CURSO
+## Slide 10: Pruebas automatizadas (Kalil, ~1:40)
 
 - **Qué automatizamos:**
   - **JUnit 5 + Spring Boot Test:** pruebas unitarias, de integración y de regresión.
   - **Postman:** la API (login, permisos por rol y datos inválidos o repetidos).
   - **Cucumber:** escenarios Given-When-Then de revisión y firma, y del umbral de confianza. Sirven como documentación que entiende alguien que no programa.
+  - **Selenium:** el portal: flujo de firma, permisos, muestra bloqueada y filtros.
+- **Corrida final: 108 tests, 0 fallas.** Todas las pruebas automatizadas pasan.
 - **Idea central:** no alcanza con que los tests pasen; con JaCoCo y PIT medimos si realmente detectan errores.
-  - **JaCoCo** mide cuánto código recorren los tests (objetivo 80 %). Resultado: **95,7 % de líneas (45 de 47) y 94,1 % de ramas (32 de 34)**. Lo único que queda sin cubrir es el `main` de `GenoclasificaApplication` y una rama en `ClasificadorConfianza` y otra en `ControlContaminacion`.
-  - **PIT** cambia el código a propósito (mutantes) y mira si algún test falla. Resultado: **100 %, 41 de 41 mutantes eliminados**. Ojo: PIT corre solo sobre las reglas de umbral (calidad, contaminación, cobertura, confianza y categorías), no sobre todo el proyecto. La primera corrida JaCoCo daba 100 % en ControlCalidad, pero PIT encontró un mutante sobreviviente (q30 < 0 cambiado por <= 0). Faltaba el caso Q30 = 0 %, y lo agregamos como CP-Q30-09 dejó vivo un mutante en `ControlCalidad`, y lo eliminamos agregando el caso CP-Q30-09 (Q30 = 0).
+  - **JaCoCo** mide cuánto código recorren los tests (objetivo 80 %). Resultado: **96,3 % de líneas y 89,9 % de ramas**.
+  - **PIT** cambia el código a propósito (mutantes) y mira si algún test falla. Resultado: **100 %, 41 de 41 mutantes eliminados**. Ojo: PIT corre solo sobre las reglas de umbral (calidad, contaminación, cobertura, confianza y categorías), no sobre todo el proyecto. En la primera corrida JaCoCo daba 100 % en `ControlCalidad`, pero PIT encontró un mutante vivo (`q30 < 0` cambiado por `<= 0`): faltaba el caso Q30 = 0, y lo agregamos como CP-Q30-09.
 - Qué no automatizamos y por qué: exploración del portal y legibilidad del informe (requieren juicio humano), pruebas que se hacen una sola vez y el modelo de IA real (no tenemos acceso).
-- Si todavía no hay datos el día de la exposición, decirlo tal cual: "esto está en curso".
 
-## Slide 11: Ejecución manual y defectos (Kalil, ~1:40) · EN CURSO
+## Slide 11: Ejecución manual y defectos (Kalil, ~1:40)
 
 - **Ejecución:**
   - Ejecutamos a mano los casos de caja negra y guardamos evidencia con capturas.
   - Hicimos sesiones exploratorias del portal, buscando lo que no está escrito en los casos.
   - Selenium automatiza el flujo principal del portal: búsqueda, filtros y revisión y firma.
-  - Resultado: aprobados / fallidos / bloqueados [COMPLETAR].
-- **Defectos en Jira:** la severidad de cada defecto se define por su impacto clínico, no solo técnico. Cada defecto tiene además prioridad, evidencia y un ciclo de vida. Defectos por severidad: [COMPLETAR].
-- Defecto de ejemplo, **GCL-53: mensaje de error incorrecto con cobertura vacía**.
-  - Lo detectó el test CP-COB-08 en la fase RED de TDD: con cobertura vacía, el sistema rechazaba el dato, pero con un mensaje de error que no correspondía.
-  - Severidad **baja**: no cambia ninguna clasificación ni deja pasar un dato inválido, así que no tiene impacto clínico.
-  - Prioridad **media**: un mensaje equivocado confunde a quien usa la API y conviene corregirlo pronto.
-  - Estado **Listo**: lo corregimos (fase GREEN) y verificamos que el test pase.
-- Si da el tiempo, mostrar GCL-53 en Jira para que se vea el ciclo de vida completo del defecto.
+  - Resultado: **manual por API, 4 de 6 aprobados; portal, 5 de 6 aprobados; la exploratoria encontró 1 defecto crítico; Selenium, 5 de 5.**
+- **Defectos en Jira:** la severidad de cada defecto se define por su impacto clínico, no solo técnico. Cada defecto tiene además prioridad, evidencia y un ciclo de vida.
+  - En total, **5 defectos: 1 crítico, 2 altos y 2 bajos. 4 siguen abiertos.**
+- Defecto de ejemplo, **GCL-56: se emite el informe con una variante "requiere revisión" sin revisión del genetista**.
+  - Lo encontramos en una sesión exploratoria del portal; la evidencia es el PDF de PORT-C.
+  - Severidad **crítica**: un informe puede llegar al paciente con una variante dudosa que ningún genetista revisó. Es justo el tipo de error que el sistema existe para evitar.
+  - Prioridad **alta**: hay que corregirlo antes de liberar.
+  - Estado **Abierto**.
+- Si da el tiempo, mostrar GCL-56 en Jira con la evidencia.
 - Pase a Kiara: "Kiara cierra con las métricas y nuestra recomendación."
 
-## Slide 12: Resultados frente a los criterios de salida (Kiara, ~0:40) · EN CURSO
+## Slide 12: Resultados frente a los criterios de salida (Kiara, ~0:40)
 
 - Mencionar solo qué cumple y qué no; el detalle ya se explicó antes.
-- Aclarar que los KPIs del modelo se midieron sobre el modelo simulado.
+- **Modelo:** sensibilidad, patogénicas clasificadas como benignas y concordancia quedaron **sin medir**, porque no tenemos el modelo real.
+- **No cumple:**
+  - Casos P1 y P2 aprobados: hay casos **P1 fallidos y bloqueados**.
+  - Defectos críticos o altos abiertos: el objetivo es 0 y hay **3**.
+- **Cumple:**
+  - Cobertura JaCoCo: 96,3 % de líneas y 89,9 % de ramas (objetivo 80 %).
+  - Mutación PIT: 100 % (41 de 41 mutantes).
+  - Búsqueda en el portal: responde en milisegundos (medido con 4 muestras), muy por debajo de 3 s.
 - "Procesamiento por muestra < 2 h" no es medible, porque nuestra implementación no procesa archivos del secuenciador.
 
-## Slide 13: ¿Liberamos la 4.2.0? (Kiara, ~1:00) · EN CURSO
+## Slide 13: ¿Liberamos la 4.2.0? (Kiara, ~1:00)
 
-- Recomendación: [COMPLETAR: liberar / liberar con condiciones / no liberar].
-- Conectar la recomendación con la regla de liberación de la slide de riesgos (slide 5): decir qué condición del Definition of Done se cumple o no se cumple, y por eso la decisión.
+- Recomendación: **no liberar**.
+- Conectarlo con la regla de liberación de la slide de riesgos (slide 5): no se libera si hay un defecto crítico o alto abierto, si falla una métrica del modelo o si quedan casos P1 sin ejecutar. Acá se dan las tres situaciones:
+  1. Hay un defecto crítico y dos altos abiertos: un informe puede salir con una variante dudosa sin que la revise un genetista, y el genetista firma sin ver la evidencia.
+  2. Hay 6 casos P1 bloqueados: la reclasificación, la auditoría y el registro de versiones no están implementados.
+  3. Las métricas del modelo no se pudieron medir.
+- Frase de cierre: "Todas las pruebas automatizadas pasaron, y los problemas graves aparecieron en las manuales y exploratorias: el sistema se verifica, pero no se valida."
+- Conectar con la introducción: verificar es comprobar que cumple la especificación; validar, que le sirve a quien lo usa. GCL-56 cumple la especificación y aun así no es seguro.
 - Riesgos residuales y limitaciones, dichos con honestidad:
   - La independencia es parcial, porque la implementación de referencia la hicimos nosotros.
-  - Recibimos la calidad, la cobertura y la contaminación ya calculadas: si el sistema real las calculara mal, no lo detectaríamos.
-  - No probamos el modelo de IA real ni hicimos pruebas de carga o disponibilidad.
+  - Recibimos la calidad, la cobertura y la contaminación ya calculadas: si el sistema real las calculara mal, no lo detectaríamos. Tampoco probamos el modelo de IA real ni hicimos pruebas de carga o disponibilidad.
 - Cerrar mencionando que el uso de IA en el trabajo está declarado y documentado.
 - Cierre: "Gracias. ¿Preguntas?"
