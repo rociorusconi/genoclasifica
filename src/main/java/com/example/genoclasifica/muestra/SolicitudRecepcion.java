@@ -2,6 +2,8 @@ package com.example.genoclasifica.muestra;
 
 import com.example.genoclasifica.Categoria;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,8 +15,8 @@ public record SolicitudRecepcion(
     @NotBlank String idCorrida,
     @NotBlank String checksum,
     String contenido,
-    @NotNull Double q30,
-    @NotNull Double contaminacion,
+    @NotNull @DecimalMin("0.0") @DecimalMax("100.0") Double q30,
+    @NotNull @DecimalMin("0.0") @DecimalMax("100.0") Double contaminacion,
     @Valid List<VarianteRecibida> variantes
 ) {
 
@@ -23,7 +25,7 @@ public record SolicitudRecepcion(
         @NotNull Integer posicion,
         String tipo,
         @NotNull Categoria categoriaPropuesta,
-        @NotNull Double confianza
+        @NotNull @DecimalMin("0.0") @DecimalMax("100.0") Double confianza
     ) {
     }
 }

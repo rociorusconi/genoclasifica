@@ -1,0 +1,1394 @@
+{
+  "info": {
+    "name": "GenoClasifica API",
+    "description": "Pruebas de la API REST de GenoClasifica (sección 6.3): login con JWT, permisos por rol, recepción de corridas, revisión y firma, e informe. Usa solo datos sintéticos. Ejecutar las carpetas en orden: cada una usa los tokens y las muestras de las anteriores.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Login (RF-09)",
+      "item": [
+        {
+          "name": "Inicio de la corrida",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/NO-EXISTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "NO-EXISTE"
+              ]
+            },
+            "description": "Fija un identificador de corrida para que cada ejecución use códigos de muestra nuevos. Además verifica que sin token la API responde 401."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"run\", Date.now().toString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Sin token: responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"El mensaje dice: Falta iniciar sesión\", () => pm.expect(pm.response.json().mensaje).to.include(\"Falta iniciar sesión\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login tecnico_lab",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"tecnico_lab\",\n  \"clave\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login correcto: responde 200\", () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test(\"Devuelve un token JWT\", () => pm.expect(datos.token.split(\".\")).to.have.lengthOf(3));",
+                  "pm.environment.set(\"token_tecnico\", datos.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login bio_user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"bio_user\",\n  \"clave\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login correcto: responde 200\", () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test(\"Devuelve un token JWT\", () => pm.expect(datos.token.split(\".\")).to.have.lengthOf(3));",
+                  "pm.environment.set(\"token_bio\", datos.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login genetista_1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"genetista_1\",\n  \"clave\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login correcto: responde 200\", () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test(\"Devuelve un token JWT\", () => pm.expect(datos.token.split(\".\")).to.have.lengthOf(3));",
+                  "pm.environment.set(\"token_genetista\", datos.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login auditor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"auditor\",\n  \"clave\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login correcto: responde 200\", () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test(\"Devuelve un token JWT\", () => pm.expect(datos.token.split(\".\")).to.have.lengthOf(3));",
+                  "pm.environment.set(\"token_auditor\", datos.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con clave incorrecta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"genetista_1\",\n  \"clave\": \"incorrecta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Clave incorrecta: responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"El mensaje dice: Usuario o clave incorrectos\", () => pm.expect(pm.response.json().mensaje).to.include(\"Usuario o clave incorrectos\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login de usuario inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"no_existe\",\n  \"clave\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Usuario inexistente: responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"El mensaje dice: Usuario o clave incorrectos\", () => pm.expect(pm.response.json().mensaje).to.include(\"Usuario o clave incorrectos\"));",
+                  "pm.test(\"No revela si el usuario existe (mismo mensaje que clave incorrecta)\", () => pm.expect(pm.response.json().mensaje).to.eql(\"Usuario o clave incorrectos\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Recepción de corridas (RF-01)",
+      "item": [
+        {
+          "name": "T1 · Corrida íntegra y nueva",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{cuerpo}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const codigo = \"PM-\" + pm.environment.get(\"run\") + \"-recibida\";",
+                  "const corrida = \"RUN-\" + pm.environment.get(\"run\") + \"-DUP\";",
+                  "const contenido = \"corrida sintetica \" + corrida;",
+                  "const checksum = require(\"crypto-js\").SHA256(contenido).toString();",
+                  "pm.environment.set(\"muestra_recibida\", codigo);",
+                  "pm.variables.set(\"cuerpo\", JSON.stringify({",
+                  "  codigo: codigo, idCorrida: corrida, checksum: checksum,",
+                  "  contenido: contenido,",
+                  "  q30: 92.0, contaminacion: 1.0,",
+                  "  variantes: [{ gen: \"BRCA1\", posicion: 43071077, tipo: \"SNV\", categoriaPropuesta: \"BENIGNA\", confianza: 90.0 }]",
+                  "}, null, 2));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Recepción válida: responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"La muestra queda en \\\"Recibida\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Recibida\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T2 · Corrida ya procesada (duplicada)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{cuerpo}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const codigo = \"PM-\" + pm.environment.get(\"run\") + \"-duplicada\";",
+                  "const corrida = \"RUN-\" + pm.environment.get(\"run\") + \"-DUP\";",
+                  "const contenido = \"corrida sintetica \" + corrida;",
+                  "const checksum = require(\"crypto-js\").SHA256(contenido).toString();",
+                  "pm.environment.set(\"muestra_duplicada\", codigo);",
+                  "pm.variables.set(\"cuerpo\", JSON.stringify({",
+                  "  codigo: codigo, idCorrida: corrida, checksum: checksum,",
+                  "  contenido: contenido,",
+                  "  q30: 92.0, contaminacion: 1.0,",
+                  "  variantes: [{ gen: \"BRCA1\", posicion: 43071077, tipo: \"SNV\", categoriaPropuesta: \"BENIGNA\", confianza: 90.0 }]",
+                  "}, null, 2));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Duplicada: responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"La muestra queda en \\\"Rechazada por duplicada\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Rechazada por duplicada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T3 · Archivo corrupto (checksum no coincide)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{cuerpo}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const codigo = \"PM-\" + pm.environment.get(\"run\") + \"-corrupta\";",
+                  "const corrida = \"RUN-\" + pm.environment.get(\"run\") + \"-corrupta\";",
+                  "const contenido = \"corrida sintetica \" + corrida;",
+                  "const checksum = require(\"crypto-js\").SHA256(contenido).toString();",
+                  "pm.environment.set(\"muestra_corrupta\", codigo);",
+                  "pm.variables.set(\"cuerpo\", JSON.stringify({",
+                  "  codigo: codigo, idCorrida: corrida, checksum: checksum,",
+                  "  contenido: \"contenido truncado\",",
+                  "  q30: 92.0, contaminacion: 1.0,",
+                  "  variantes: [{ gen: \"BRCA1\", posicion: 43071077, tipo: \"SNV\", categoriaPropuesta: \"BENIGNA\", confianza: 90.0 }]",
+                  "}, null, 2));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Archivo corrupto: responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"La muestra queda en \\\"Rechazada por integridad\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Rechazada por integridad\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Q30 fuera de rango (100,1 %)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{cuerpo}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const codigo = \"PM-\" + pm.environment.get(\"run\") + \"-q30invalido\";",
+                  "const corrida = \"RUN-\" + pm.environment.get(\"run\") + \"-q30invalido\";",
+                  "const contenido = \"corrida sintetica \" + corrida;",
+                  "const checksum = require(\"crypto-js\").SHA256(contenido).toString();",
+                  "pm.environment.set(\"muestra_q30invalido\", codigo);",
+                  "pm.variables.set(\"cuerpo\", JSON.stringify({",
+                  "  codigo: codigo, idCorrida: corrida, checksum: checksum,",
+                  "  contenido: contenido,",
+                  "  q30: 100.1, contaminacion: 1.0,",
+                  "  variantes: [{ gen: \"BRCA1\", posicion: 43071077, tipo: \"SNV\", categoriaPropuesta: \"BENIGNA\", confianza: 90.0 }]",
+                  "}, null, 2));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Dato inválido: responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"El mensaje dice: q30\", () => pm.expect(pm.response.json().mensaje).to.include(\"q30\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "JSON mal formado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"codigo\": \"PM-ROTO\", ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"JSON inválido: responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"El mensaje dice: no es un JSON válido\", () => pm.expect(pm.response.json().mensaje).to.include(\"no es un JSON válido\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Auditor intenta registrar una muestra",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_auditor}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{cuerpo}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const codigo = \"PM-\" + pm.environment.get(\"run\") + \"-auditor\";",
+                  "const corrida = \"RUN-\" + pm.environment.get(\"run\") + \"-auditor\";",
+                  "const contenido = \"corrida sintetica \" + corrida;",
+                  "const checksum = require(\"crypto-js\").SHA256(contenido).toString();",
+                  "pm.environment.set(\"muestra_auditor\", codigo);",
+                  "pm.variables.set(\"cuerpo\", JSON.stringify({",
+                  "  codigo: codigo, idCorrida: corrida, checksum: checksum,",
+                  "  contenido: contenido,",
+                  "  q30: 92.0, contaminacion: 1.0,",
+                  "  variantes: [{ gen: \"BRCA1\", posicion: 43071077, tipo: \"SNV\", categoriaPropuesta: \"BENIGNA\", confianza: 90.0 }]",
+                  "}, null, 2));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol sin permiso: responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"El mensaje dice: Acceso denegado\", () => pm.expect(pm.response.json().mensaje).to.include(\"Acceso denegado\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Revisión y firma (RF-05, RF-06, RF-07)",
+      "item": [
+        {
+          "name": "Registrar muestra con variante patogénica",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{cuerpo}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const codigo = \"PM-\" + pm.environment.get(\"run\") + \"-patogenica\";",
+                  "const corrida = \"RUN-\" + pm.environment.get(\"run\") + \"-patogenica\";",
+                  "const contenido = \"corrida sintetica \" + corrida;",
+                  "const checksum = require(\"crypto-js\").SHA256(contenido).toString();",
+                  "pm.environment.set(\"muestra_patogenica\", codigo);",
+                  "pm.variables.set(\"cuerpo\", JSON.stringify({",
+                  "  codigo: codigo, idCorrida: corrida, checksum: checksum,",
+                  "  contenido: contenido,",
+                  "  q30: 92.0, contaminacion: 1.0,",
+                  "  variantes: [{ gen: \"BRCA1\", posicion: 43071077, tipo: \"SNV\", categoriaPropuesta: \"PATOGENICA\", confianza: 90.0 }]",
+                  "}, null, 2));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Recepción válida: responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Técnico intenta procesar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}",
+                "process"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol sin permiso para procesar: responde 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T7 + T8 · Bioinformático procesa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_bio}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}",
+                "process"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Procesada: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La muestra queda en \\\"Pendiente de firma\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Pendiente de firma\"));",
+                  "pm.test(\"La variante queda patogénica y exige firma\", () => {",
+                  "  const v = pm.response.json().variantes[0];",
+                  "  pm.expect(v.categoria).to.eql(\"PATOGENICA\");",
+                  "  pm.expect(v.exigeFirma).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TI1 · CP-ST-INV-01 · PDF sin firma",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/{{muestra_patogenica}}/pdf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "{{muestra_patogenica}}",
+                "pdf"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Informe sin firma: responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"El mensaje dice: Requisito de firma no cumplido\", () => pm.expect(pm.response.json().mensaje).to.include(\"Requisito de firma no cumplido\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TI2 · CP-ST-INV-02 · Firma de bioinformático",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_bio}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}/sign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}",
+                "sign"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Firma no autorizada: responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"El mensaje dice: se requiere rol Genetista\", () => pm.expect(pm.response.json().mensaje).to.include(\"se requiere rol Genetista\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "La muestra sigue pendiente de firma",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_auditor}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Consulta: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La muestra queda en \\\"Pendiente de firma\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Pendiente de firma\"));",
+                  "pm.test(\"Nadie firmó todavía\", () => pm.expect(pm.response.json().firmadaPor).to.be.null);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T10 · Genetista firma",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_genetista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}/sign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}",
+                "sign"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Firma: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La muestra queda en \\\"Firmada\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Firmada\"));",
+                  "pm.test(\"Queda registrado quién firmó\", () => pm.expect(pm.response.json().firmadaPor).to.eql(\"genetista_1\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T11 · Se emite el PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_genetista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/{{muestra_patogenica}}/pdf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "{{muestra_patogenica}}",
+                "pdf"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Informe: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Es un PDF\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/pdf\"));",
+                  "pm.test(\"El archivo empieza con %PDF\", () => pm.expect(pm.response.text().substring(0, 5)).to.eql(\"%PDF-\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "La muestra queda con informe emitido",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_auditor}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Consulta: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La muestra queda en \\\"Informe emitido\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Informe emitido\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Firmar de nuevo una muestra ya emitida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_genetista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}/sign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}",
+                "sign"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Transición inválida: responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"El mensaje dice: Pendiente de firma\", () => pm.expect(pm.response.json().mensaje).to.include(\"Pendiente de firma\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Muestra bloqueada (RF-03, RF-07)",
+      "item": [
+        {
+          "name": "Registrar muestra con 3,5 % de contaminación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_tecnico}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{cuerpo}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const codigo = \"PM-\" + pm.environment.get(\"run\") + \"-bloqueada\";",
+                  "const corrida = \"RUN-\" + pm.environment.get(\"run\") + \"-bloqueada\";",
+                  "const contenido = \"corrida sintetica \" + corrida;",
+                  "const checksum = require(\"crypto-js\").SHA256(contenido).toString();",
+                  "pm.environment.set(\"muestra_bloqueada\", codigo);",
+                  "pm.variables.set(\"cuerpo\", JSON.stringify({",
+                  "  codigo: codigo, idCorrida: corrida, checksum: checksum,",
+                  "  contenido: contenido,",
+                  "  q30: 92.0, contaminacion: 3.5,",
+                  "  variantes: [{ gen: \"BRCA1\", posicion: 43071077, tipo: \"SNV\", categoriaPropuesta: \"PATOGENICA\", confianza: 90.0 }]",
+                  "}, null, 2));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Recepción válida: responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "T5 · Procesar: queda bloqueada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_bio}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_bloqueada}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_bloqueada}}",
+                "process"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Procesada: responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"La muestra queda en \\\"Bloqueada\\\"\", () => pm.expect(pm.response.json().estado).to.eql(\"Bloqueada\"));",
+                  "pm.test(\"La variante no se clasifica\", () => pm.expect(pm.response.json().variantes[0].categoria).to.be.null);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TI3 · CP-ST-INV-03 · PDF de muestra bloqueada",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_genetista}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/{{muestra_bloqueada}}/pdf",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reports",
+                "{{muestra_bloqueada}}",
+                "pdf"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Informe bloqueado: responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"El mensaje dice: bloqueada\", () => pm.expect(pm.response.json().mensaje).to.include(\"bloqueada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TI4 · Volver a procesar una muestra bloqueada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_bio}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_bloqueada}}/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_bloqueada}}",
+                "process"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Transición inválida: responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"El mensaje dice: Bloqueada\", () => pm.expect(pm.response.json().mensaje).to.include(\"Bloqueada\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Seguridad del token (RF-10, RNF seguridad)",
+      "item": [
+        {
+          "name": "Token alterado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/{{muestra_patogenica}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "{{muestra_patogenica}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.request.headers.upsert({ key: \"Authorization\", value: \"Bearer \" + pm.environment.get(\"token_auditor\") + \"x\" });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Token alterado: responde 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Muestra inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_auditor}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/samples/NO-EXISTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "samples",
+                "NO-EXISTE"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"No encontrada: responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"El mensaje dice: No existe la muestra\", () => pm.expect(pm.response.json().mensaje).to.include(\"No existe la muestra\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
