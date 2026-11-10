@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.example.genoclasifica.api.ApiMuestrasTest
 -------------------------------------------------------------------------------
-Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.11 s -- in com.example.genoclasifica.api.ApiMuestrasTest
+Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 24.48 s -- in com.example.genoclasifica.api.ApiMuestrasTest

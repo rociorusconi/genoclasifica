@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReclasificacionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.example.genoclasifica.reclasificacion</a> &gt; <span class="el_source">ReclasificacionService.java</span></div><h1>ReclasificacionService.java</h1><pre class="source lang-java linenums">package com.example.genoclasifica.reclasificacion;
+
+import com.example.genoclasifica.muestra.EstadoMuestra;
+import com.example.genoclasifica.muestra.Muestra;
+import com.example.genoclasifica.muestra.MuestraService;
+import com.example.genoclasifica.muestra.Variante;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+// RF-08: detecta las variantes de informes ya emitidos cuya categoría cambiaría y avisa al genetista.
+// Supuesto de la sección 3: cualquier cambio de categoría notifica. Ni la variante ni el informe se modifican.
+@Service
+@Transactional
+public class ReclasificacionService {
+
+<span class="fc" id="L21">    private static final Set&lt;EstadoMuestra&gt; CON_INFORME =</span>
+<span class="fc" id="L22">        Set.of(EstadoMuestra.INFORME_EMITIDO, EstadoMuestra.RECLASIFICACION_NOTIFICADA);</span>
+
+    private final MuestraService muestras;
+    private final NotificacionRepository notificaciones;
+
+<span class="fc" id="L27">    public ReclasificacionService(MuestraService muestras, NotificacionRepository notificaciones) {</span>
+<span class="fc" id="L28">        this.muestras = muestras;</span>
+<span class="fc" id="L29">        this.notificaciones = notificaciones;</span>
+<span class="fc" id="L30">    }</span>
+
+    public List&lt;Notificacion&gt; reclasificar(SolicitudReclasificacion cambio) {
+<span class="fc" id="L33">        List&lt;Notificacion&gt; nuevas = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        for (Muestra muestra : muestras.listar(cambio.gen(), null, null, null)) {</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            if (!CON_INFORME.contains(muestra.getEstado())) {</span>
+<span class="fc" id="L36">                continue;</span>
+            }
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            for (Variante v : muestra.getVariantes()) {</span>
+<span class="fc bfc" id="L39" title="All 4 branches covered.">                if (cambiaria(v, cambio) &amp;&amp; !yaNotificada(muestra, cambio)) {</span>
+<span class="fc" id="L40">                    nuevas.add(notificaciones.save(new Notificacion(muestra.getCodigo(), v.getGen(), v.getPosicion(),</span>
+<span class="fc" id="L41">                        v.getCategoria(), cambio.categoriaNueva(), cambio.versionBases())));</span>
+<span class="fc" id="L42">                    muestras.registrarReclasificacion(muestra.getCodigo(), v.getGen() + &quot; &quot; + v.getPosicion() + &quot;: &quot;</span>
+<span class="fc" id="L43">                        + v.getCategoria() + &quot; -&gt; &quot; + cambio.categoriaNueva() + &quot; (bases &quot; + cambio.versionBases() + &quot;)&quot;);</span>
+                }
+<span class="fc" id="L45">            }</span>
+<span class="fc" id="L46">        }</span>
+<span class="fc" id="L47">        return nuevas;</span>
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;Notificacion&gt; listar() {
+<span class="fc" id="L52">        return notificaciones.findAll(Sort.by(Sort.Direction.DESC, &quot;id&quot;));</span>
+    }
+
+    private boolean cambiaria(Variante v, SolicitudReclasificacion cambio) {
+<span class="pc bpc" id="L56" title="2 of 4 branches missed.">        return v.getGen().equalsIgnoreCase(cambio.gen()) &amp;&amp; v.getPosicion().equals(cambio.posicion())</span>
+<span class="pc bpc" id="L57" title="1 of 4 branches missed.">            &amp;&amp; v.getCategoria() != null &amp;&amp; v.getCategoria() != cambio.categoriaNueva();</span>
+    }
+
+    // Repetir la misma actualización no duplica avisos
+    private boolean yaNotificada(Muestra muestra, SolicitudReclasificacion cambio) {
+<span class="fc" id="L62">        return notificaciones.existsByCodigoMuestraAndGenIgnoreCaseAndPosicionAndCategoriaNueva(</span>
+<span class="fc" id="L63">            muestra.getCodigo(), cambio.gen(), cambio.posicion(), cambio.categoriaNueva());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

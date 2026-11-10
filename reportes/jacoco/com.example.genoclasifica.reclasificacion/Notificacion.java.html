@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Notificacion.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.example.genoclasifica.reclasificacion</a> &gt; <span class="el_source">Notificacion.java</span></div><h1>Notificacion.java</h1><pre class="source lang-java linenums">package com.example.genoclasifica.reclasificacion;
+
+import com.example.genoclasifica.Categoria;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+
+// Aviso al genetista de que una variante de un informe ya emitido cambiaría de categoría (RF-08)
+@Entity
+@Table(name = &quot;NOTIFICACION&quot;)
+public class Notificacion {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String codigoMuestra;
+    private String gen;
+    private Integer posicion;
+
+    @Enumerated(EnumType.STRING)
+    private Categoria categoriaAnterior;
+
+    @Enumerated(EnumType.STRING)
+    private Categoria categoriaNueva;
+
+    private String versionBases;
+    private String destinatario;
+    private LocalDateTime creadaEn;
+
+<span class="fc" id="L31">    protected Notificacion() {</span>
+<span class="fc" id="L32">    }</span>
+
+    Notificacion(String codigoMuestra, String gen, Integer posicion, Categoria categoriaAnterior,
+<span class="fc" id="L35">                 Categoria categoriaNueva, String versionBases) {</span>
+<span class="fc" id="L36">        this.codigoMuestra = codigoMuestra;</span>
+<span class="fc" id="L37">        this.gen = gen;</span>
+<span class="fc" id="L38">        this.posicion = posicion;</span>
+<span class="fc" id="L39">        this.categoriaAnterior = categoriaAnterior;</span>
+<span class="fc" id="L40">        this.categoriaNueva = categoriaNueva;</span>
+<span class="fc" id="L41">        this.versionBases = versionBases;</span>
+<span class="fc" id="L42">        this.destinatario = &quot;GENETISTA&quot;;</span>
+<span class="fc" id="L43">        this.creadaEn = LocalDateTime.now();</span>
+<span class="fc" id="L44">    }</span>
+
+<span class="nc" id="L46">    public Long getId() { return id; }</span>
+<span class="fc" id="L47">    public String getCodigoMuestra() { return codigoMuestra; }</span>
+<span class="nc" id="L48">    public String getGen() { return gen; }</span>
+<span class="nc" id="L49">    public Integer getPosicion() { return posicion; }</span>
+<span class="fc" id="L50">    public Categoria getCategoriaAnterior() { return categoriaAnterior; }</span>
+<span class="fc" id="L51">    public Categoria getCategoriaNueva() { return categoriaNueva; }</span>
+<span class="nc" id="L52">    public String getVersionBases() { return versionBases; }</span>
+<span class="fc" id="L53">    public String getDestinatario() { return destinatario; }</span>
+<span class="nc" id="L54">    public LocalDateTime getCreadaEn() { return creadaEn; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

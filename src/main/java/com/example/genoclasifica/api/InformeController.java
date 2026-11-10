@@ -1,8 +1,6 @@
 package com.example.genoclasifica.api;
 
-import com.example.genoclasifica.muestra.EstadoMuestra;
-import com.example.genoclasifica.muestra.Muestra;
-import com.example.genoclasifica.muestra.MuestraService;
+import com.example.genoclasifica.informe.InformeService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,24 +13,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/reports")
 public class InformeController {
 
-    private final MuestraService service;
-    private final GeneradorPdf generadorPdf;
+    private final InformeService informes;
 
-    public InformeController(MuestraService service, GeneradorPdf generadorPdf) {
-        this.service = service;
-        this.generadorPdf = generadorPdf;
+    public InformeController(InformeService informes) {
+        this.informes = informes;
     }
 
-    // La primera vez emite el informe; si ya estaba emitido, lo vuelve a entregar
+    // La primera vez emite y guarda el informe; después entrega siempre el mismo archivo
     @GetMapping("/{codigo}/pdf")
     public ResponseEntity<byte[]> pdf(@PathVariable String codigo) {
-        Muestra muestra = service.buscar(codigo);
-        if (muestra.getEstado() != EstadoMuestra.INFORME_EMITIDO) {
-            muestra = service.emitirInforme(codigo);
-        }
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_PDF)
             .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=informe-" + codigo + ".pdf")
-            .body(generadorPdf.generar(muestra));
+            .body(informes.obtener(codigo).getContenido());
     }
 }

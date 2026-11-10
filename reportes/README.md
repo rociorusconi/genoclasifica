@@ -1,14 +1,14 @@
 # Reportes de la corrida final (GCL-36)
 
-Corrida sobre `main` del 10/11/2026, después de mergear la API, el portal y Selenium (PR #11).
+Corrida del 10/11/2026, con la API, el portal, Selenium y la auditoría, el informe guardado y la reclasificación.
 
 | Herramienta | Resultado | Reporte |
 |---|---|---|
-| JUnit 5 + Spring Boot Test + Cucumber + Selenium | 104 tests, 0 fallas, 0 errores | `junit/` (resumen por clase) |
+| JUnit 5 + Spring Boot Test + Cucumber + Selenium | 122 tests, 0 fallas, 0 errores | `junit/` (resumen por clase) |
 | Cucumber (BDD, 5.2) | 14 escenarios, 14 aprobados | `cucumber/cucumber.html` |
-| JaCoCo (cobertura) | 97,6 % instrucciones · 89,9 % ramas (98/109) · 96,3 % líneas (340/353) | `jacoco/index.html` |
+| JaCoCo (cobertura) | 95,8 % instrucciones · 87,9 % ramas (124/141) · 94,0 % líneas (474/504) | `jacoco/index.html` |
 | PIT (mutación, reglas de umbral) | 41 mutantes, 41 eliminados (100 %) | `pit/index.html` |
-| Postman / Newman (API, 6.3) | 29 pedidos, 60 aserciones, 0 fallas | `postman/newman.html` |
+| Postman / Newman (API, 6.3) | 37 pedidos, 76 aserciones, 0 fallas | `postman/newman.html` |
 | Selenium (portal, 7.5) | 5 casos aprobados | `selenium/` (captura final de cada caso) |
 
 ## Cómo regenerarlos
