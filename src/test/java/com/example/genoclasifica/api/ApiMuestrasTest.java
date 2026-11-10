@@ -173,4 +173,20 @@ class ApiMuestrasTest {
         mvc.perform(conToken(get("/api/v1/samples/NO-EXISTE"), "auditor"))
             .andExpect(status().isNotFound());
     }
+
+    @Test
+    void listadoDeMuestrasRequiereToken() throws Exception {
+        mvc.perform(get("/api/v1/samples"))
+            .andExpect(status().isUnauthorized());
+        mvc.perform(conToken(get("/api/v1/samples"), "auditor"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void elPortalSeSirveSinToken() throws Exception {
+        mvc.perform(get("/index.html"))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("GenoClasifica")));
+    }
 }

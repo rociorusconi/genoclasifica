@@ -11,6 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/samples")
 public class MuestraController {
@@ -43,6 +45,11 @@ public class MuestraController {
     public MuestraResponse firmar(@PathVariable String codigo, @AuthenticationPrincipal Jwt token) {
         Rol rol = Rol.valueOf(token.getClaimAsString("rol"));
         return MuestraResponse.de(service.firmar(codigo, token.getSubject(), rol));
+    }
+
+    @GetMapping
+    public List<MuestraResponse> listar() {
+        return service.listar().stream().map(MuestraResponse::de).toList();
     }
 
     @GetMapping("/{codigo}")

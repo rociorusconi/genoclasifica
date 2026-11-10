@@ -4,6 +4,7 @@ import com.example.genoclasifica.ClasificadorConfianza;
 import com.example.genoclasifica.ControlCalidad;
 import com.example.genoclasifica.ControlContaminacion;
 import com.example.genoclasifica.seguridad.Rol;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,6 +101,11 @@ public class MuestraService {
     @Transactional(readOnly = true)
     public Muestra buscar(String codigo) {
         return muestras.findByCodigo(codigo).orElseThrow(() -> new MuestraNoEncontradaException(codigo));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Muestra> listar() {
+        return muestras.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     private boolean esIntegra(String contenido, String checksumDeclarado) {
