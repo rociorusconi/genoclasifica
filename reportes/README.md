@@ -4,7 +4,7 @@ Corrida del 10/11/2026, con la API, el portal, Selenium y la auditoría, el info
 
 | Herramienta | Resultado | Reporte |
 |---|---|---|
-| JUnit 5 + Spring Boot Test + Cucumber + Selenium | 118 tests, 0 fallas, 0 errores | `junit/` (resumen por clase) |
+| JUnit 5 + Spring Boot Test + Cucumber + Selenium | 122 tests, 0 fallas, 0 errores | `junit/` (resumen por clase) |
 | Cucumber (BDD, 5.2) | 14 escenarios, 14 aprobados | `cucumber/cucumber.html` |
 | JaCoCo (cobertura) | 95,8 % instrucciones · 87,9 % ramas (124/141) · 94,0 % líneas (474/504) | `jacoco/index.html` |
 | PIT (mutación, reglas de umbral) | 41 mutantes, 41 eliminados (100 %) | `pit/index.html` |
