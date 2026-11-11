@@ -132,29 +132,45 @@
 - Pase a Kiara: "Kiara cierra con las métricas y nuestra recomendación."
 
 ## Slide 12: Resultados frente a los criterios de salida (Kiara, ~0:40)
+- Modelo: sensibilidad, patogénicas clasificadas como benignas y concordancia quedaron sin medir, porque no tenemos el modelo real.
 
-- Mencionar solo qué cumple y qué no; el detalle ya se explicó antes.
-- **Modelo:** sensibilidad, patogénicas clasificadas como benignas y concordancia quedaron **sin medir**, porque no tenemos el modelo real.
-- **No cumple:**
-  - Casos P1 y P2 aprobados: hay casos **P1 fallidos en la ejecución manual** (MAN-05 y MAN-06). Ya no quedan casos bloqueados.
-  - Defectos críticos o altos abiertos: el objetivo es 0 y hay **3**.
-- **Cumple:**
-  - Cobertura JaCoCo: 94,0 % de líneas y 87,9 % de ramas (objetivo 80 %).
-  - Mutación PIT: 100 % (41 de 41 mutantes).
-  - Búsqueda en el portal: responde en milisegundos (medido con 4 muestras), muy por debajo de 3 s.
-- "Procesamiento por muestra < 2 h" no es medible, porque nuestra implementación no procesa archivos del secuenciador.
+- No cumple:
+
+  Casos P1 y P2 aprobados: los casos P1 automatizados se aprobaron con éxito (91/91), pero hubo fallos en la ejecución manual (MAN-05 y MAN-06). Ya no quedan casos bloqueados.
+
+  Defectos críticos o altos abiertos: el objetivo es 0 y hay 3.
+
+- Cumple:
+
+  Cobertura JaCoCo: 94,0 % de líneas y 87,9 % de ramas (objetivo 80 %).
+
+  Mutación PIT: 100 % (41 de 41 mutantes).
+
+  Búsqueda en el portal: responde en milisegundos (medido con 4 muestras), muy por debajo de 3 s.
+
+  "Procesamiento por muestra < 2 h" no es medible, porque nuestra implementación no procesa archivos del secuenciador.
 
 ## Slide 13: ¿Liberamos la 4.2.0? (Kiara, ~1:00)
+- Recomendación: no liberar.
 
-- Recomendación: **no liberar**.
 - Conectarlo con la regla de liberación de la slide de riesgos (slide 5): no se libera si hay un defecto crítico o alto abierto, si falla una métrica del modelo o si quedan casos P1 sin ejecutar. Con una sola condición alcanza:
-  1. Hay un defecto crítico y dos altos abiertos: un informe puede salir con una variante dudosa sin que la revise un genetista, y el genetista firma sin ver la evidencia. Esta condición se cumple.
-  2. Las métricas del modelo no se pudieron medir, así que esa condición no se pudo verificar.
-  3. Todos los casos P1 se ejecutaron, pero dos fallaron en la ejecución manual (MAN-05 y MAN-06). La reclasificación y la auditoría ya se probaron y funcionan.
-- Frase de cierre: "Todas las pruebas automatizadas pasaron, y los problemas graves aparecieron en las manuales y exploratorias: el sistema se verifica, pero no se valida."
-- Conectar con la introducción: verificar es comprobar que cumple la especificación; validar, que le sirve a quien lo usa. GCL-56 cumple la especificación y aun así no es seguro.
-- Riesgos residuales y limitaciones, dichos con honestidad:
-  - La independencia es parcial, porque la implementación de referencia la hicimos nosotros.
-  - Recibimos la calidad, la cobertura y la contaminación ya calculadas: si el sistema real las calculara mal, no lo detectaríamos. Tampoco probamos el modelo de IA real ni hicimos pruebas de carga o disponibilidad.
-- Cerrar mencionando que el uso de IA en el trabajo está declarado y documentado.
-- Cierre: "Gracias. ¿Preguntas?"
+
+  Hay un defecto crítico y dos altos abiertos: un informe puede salir con una variante dudosa sin que la revise un genetista, y el genetista firma sin ver la evidencia. Esta condición se cumple.
+
+  Las métricas del modelo no se pudieron medir, así que esa condición no se pudo verificar.
+
+  Todos los casos P1 de diseño automatizado se aprobaron, pero dos fallaron en la ejecución manual (MAN-05 y MAN-06). La reclasificación y la auditoría ya se probaron y funcionan.
+
+  Frase de cierre: "Las pruebas automatizadas de nuestra implementación de referencia finalizaron correctamente. Sin embargo, las pruebas manuales y exploratorias permitieron identificar defectos críticos y altos que impiden recomendar la liberación. Además, no pudimos validar el desempeño del modelo de IA real."
+
+  Conectar con la introducción: verificar es comprobar que cumple la especificación; validar, que le sirve a quien lo usa. GCL-56 cumple la especificación y aun así no es seguro.
+
+  Riesgos residuales y limitaciones, dichos con honestidad:
+
+  La independencia es parcial, porque la implementación de referencia la hicimos nosotros.
+
+  Recibimos la calidad, la cobertura y la contaminación ya calculadas: si el sistema real las calculara mal, no lo detectaríamos. Tampoco probamos el modelo de IA real ni hicimos pruebas de carga o disponibilidad.
+
+  Cerrar mencionando que el uso de IA en el trabajo está declarado y documentado.
+
+  Cierre: "Gracias. ¿Preguntas?"
