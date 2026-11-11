@@ -10,8 +10,6 @@
 
 > Kiara tiene 7 slides, así que las suyas van más rápidas para que el reparto quede parejo. La slide 11 quedó asignada a Kalil para equilibrar los tiempos. Si prefieren que la presente Rocío, hay que cambiar el texto "Presenta: Kalil" en la slide 11.
 
-> Los puntos marcados con **⚠ Revisar** son cosas que conviene confirmar antes de exponer.
-
 ---
 
 ## Slide 1: Portada (Kiara, ~0:30)
@@ -42,16 +40,16 @@
 - Primero, una decisión clave: no tenemos el código ni el modelo real. Por eso armamos una implementación de referencia propia en Java 21 con Spring Boot, que implementa las reglas del enunciado. (Como ya se vio en la slide 3 qué parte cubre, acá alcanza con decirlo rápido.)
 - La IA está simulada: nosotros elegimos la categoría y la confianza. Por eso nuestras conclusiones valen para las reglas y para nuestra implementación, no para el modelo real.
 - Usamos solo datos sintéticos, por las leyes 25.326 (datos personales) y 26.529 (derechos del paciente).
-- Dentro del alcance: las reglas de calidad, contaminación y confianza, la API para el LIMS, la revisión y firma, la emisión del informe y un portal mínimo. Fuera: el modelo real, carga y disponibilidad, producción y datos reales. Tampoco entran la reclasificación, la auditoría ni el versionado, porque no los implementamos.
+- Dentro del alcance: las reglas de calidad, contaminación y confianza, la API para el LIMS, la revisión y firma, la emisión del informe y un portal mínimo. También entran la auditoría inalterable, la reclasificación y las versiones del informe (cada informe emitido se guarda con su hash), que incorporamos al final para poder ejecutar sus casos P1. Fuera: el modelo real, carga y disponibilidad, producción y datos reales.
 - La tabla resume la estrategia: qué probamos, en qué nivel, con qué técnica y con qué herramienta. No hace falta leerla entera; alcanza con remarcar que combinamos pruebas unitarias, de integración, de aceptación y de sistema.
 - Las combinaciones de pairwise las diseñamos a mano y las ejecutamos con JUnit 5, sin una herramienta que las genere.
-- **⚠ Revisar:** la columna "Dentro / Fuera" y la asignación de técnicas en la tabla son una síntesis armada a partir del contenido. Confirmen que coinciden con el plan de pruebas.
 
 ## Slide 5: Riesgos y criterios (Kiara, ~0:40)
 
 - Priorizamos por riesgo clínico. La matriz tiene 7 riesgos, ordenados de mayor a menor prioridad.
 - Los marcados en rojo son P1 (R-01 a R-05). El más grave es **R-01**: que la IA clasifique una patogénica como benigna, es decir, un falso negativo.
 - No hace falta leer los 7: alcanza con nombrar R-01 y decir que los P1 son los que probamos primero y con más profundidad.
+- **R-06** (la reclasificación no notifica o altera informes emitidos) ya está cubierto: lo probamos y pasó. Cuando cambia la categoría de una variante se notifica al genetista, y el informe ya emitido no cambia.
 - Regla de liberación, basada en el Definition of Done:
   - **Liberar:** se cumple todo el DoD.
   - **Liberar con condiciones:** solo quedan defectos de severidad media o baja, con plan de corrección y fecha.
@@ -76,7 +74,7 @@
   - Si combina **varias condiciones** (como la emisión del informe), usamos tablas de decisión.
   - Si depende del **estado en que está la muestra**, usamos transición de estados.
   - Si hay **muchos parámetros combinados**, usamos pairwise para no probar todas las combinaciones: de 54 bajamos a 9.
-  - Con caja gris aprovechamos que conocemos parte de la implementación, por ejemplo para verificar que una muestra bloqueada nunca llegue a "Informe emitido". Diseñamos 4 casos y por ahora ejecutamos 1.
+  - Con caja gris usamos el sistema por su servicio y verificamos el resultado consultando la base con SQL. Ejemplo: un UPDATE directo sobre la tabla de auditoría se rechaza. Diseñamos 4 casos y se aprobaron los 4.
   - Con caja blanca revisamos las 4 reglas de umbral hasta llegar al 100 % de ramas. Así encontramos 2 casos que faltaban: contaminación nula (CP-CON-08) y confianza nula (CP-CONF-16).
 - Las filas en rojo (transición de estados y caja blanca) son las que vemos en detalle a continuación: transición de estados en la próxima slide, y caja blanca en la de Kalil, con la regla de Q30.
 - No hace falta leer la tabla entera: el detalle de cada caso está en el informe.
@@ -85,10 +83,9 @@
 ## Slide 8: Transición de estados (Rocío, ~1:40)
 
 - Modelamos el ciclo de vida de la muestra como una máquina de estados: Recibida, Clasificada, Pendiente de firma, Firmada, Informe emitido y, si cambia la clasificación, Reclasificación notificada.
-- También hay salidas: Bloqueada (por contaminación), Calidad insuficiente (por Q30 bajo) y Rechazada.
+- También hay salidas: Bloqueada (por contaminación), Calidad insuficiente (por Q30 bajo) y Rechazada. La muestra se rechaza al recibirla, si la corrida está duplicada o el archivo llega corrupto.
 - No solo probamos las transiciones válidas, también las inválidas. Ejemplo: pedir el PDF sin firma. El sistema tiene que rechazar el pedido, y la muestra tiene que seguir en "Pendiente de firma". Esto cubre directamente el riesgo R-03.
-- Debajo del diagrama está el resultado de la ejecución: automatizamos las transiciones con Spring Boot Test (`MuestraServiceTest`) y aprobaron 21 de 23. Las otras dos (T12 y TI8) son de reclasificación y no se ejecutaron, porque la reclasificación no está implementada. Es coherente con lo que dejamos fuera del alcance en la slide 4.
-- **⚠ Revisar:** en el diagrama, "Rechazada" sale de "Pendiente de firma". Confirmen que ese es el estado de origen correcto en su modelo; si no, hay que mover la flecha.
+- Debajo del diagrama está el resultado de la ejecución: automatizamos las transiciones con Spring Boot Test (`MuestraServiceTest` y `ReclasificacionTest`) y se aprobaron las 23. Las de reclasificación (T12 y TI8) se pudieron ejecutar al incorporar la reclasificación: cuando cambia la categoría de una variante se notifica al genetista, y el informe ya emitido no cambia.
 - Pase a Kalil: "Kalil les muestra la parte técnica: caja blanca y automatización."
 
 ## Slide 9: Caja blanca (Kalil, ~1:40)
@@ -105,12 +102,12 @@
 
 - **Qué automatizamos:**
   - **JUnit 5 + Spring Boot Test:** pruebas unitarias, de integración y de regresión.
-  - **Postman:** la API (login, permisos por rol y datos inválidos o repetidos).
+  - **Postman:** la API (login, permisos por rol, datos inválidos o repetidos, reclasificación y auditoría). La corrida con Newman dio **37 pedidos, 76 aserciones y 0 fallas**.
   - **Cucumber:** escenarios Given-When-Then de revisión y firma, y del umbral de confianza. Sirven como documentación que entiende alguien que no programa.
   - **Selenium:** el portal: flujo de firma, permisos, muestra bloqueada y filtros.
-- **Corrida final: 108 tests, 0 fallas.** Todas las pruebas automatizadas pasan.
+- **Corrida final: 122 tests, 0 fallas.** Todas las pruebas automatizadas pasan.
 - **Idea central:** no alcanza con que los tests pasen; con JaCoCo y PIT medimos si realmente detectan errores.
-  - **JaCoCo** mide cuánto código recorren los tests (objetivo 80 %). Resultado: **96,3 % de líneas y 89,9 % de ramas**.
+  - **JaCoCo** mide cuánto código recorren los tests (objetivo 80 %). Resultado: **94,0 % de líneas y 87,9 % de ramas** (95,8 % de instrucciones).
   - **PIT** cambia el código a propósito (mutantes) y mira si algún test falla. Resultado: **100 %, 41 de 41 mutantes eliminados**. Ojo: PIT corre solo sobre las reglas de umbral (calidad, contaminación, cobertura, confianza y categorías), no sobre todo el proyecto. En la primera corrida JaCoCo daba 100 % en `ControlCalidad`, pero PIT encontró un mutante vivo (`q30 < 0` cambiado por `<= 0`): faltaba el caso Q30 = 0, y lo agregamos como CP-Q30-09.
 - Qué no automatizamos y por qué: exploración del portal y legibilidad del informe (requieren juicio humano), pruebas que se hacen una sola vez y el modelo de IA real (no tenemos acceso).
 
@@ -136,10 +133,10 @@
 - Mencionar solo qué cumple y qué no; el detalle ya se explicó antes.
 - **Modelo:** sensibilidad, patogénicas clasificadas como benignas y concordancia quedaron **sin medir**, porque no tenemos el modelo real.
 - **No cumple:**
-  - Casos P1 y P2 aprobados: hay casos **P1 fallidos y bloqueados**.
+  - Casos P1 y P2 aprobados: los P1 automatizados se aprobaron, pero **2 fallaron en la ejecución manual** (MAN-05 y MAN-06). Ya no quedan casos bloqueados.
   - Defectos críticos o altos abiertos: el objetivo es 0 y hay **3**.
 - **Cumple:**
-  - Cobertura JaCoCo: 96,3 % de líneas y 89,9 % de ramas (objetivo 80 %).
+  - Cobertura JaCoCo: 94,0 % de líneas y 87,9 % de ramas (objetivo 80 %).
   - Mutación PIT: 100 % (41 de 41 mutantes).
   - Búsqueda en el portal: responde en milisegundos (medido con 4 muestras), muy por debajo de 3 s.
 - "Procesamiento por muestra < 2 h" no es medible, porque nuestra implementación no procesa archivos del secuenciador.
@@ -147,11 +144,11 @@
 ## Slide 13: ¿Liberamos la 4.2.0? (Kiara, ~1:00)
 
 - Recomendación: **no liberar**.
-- Conectarlo con la regla de liberación de la slide de riesgos (slide 5): no se libera si hay un defecto crítico o alto abierto, si falla una métrica del modelo o si quedan casos P1 sin ejecutar. Acá se dan las tres situaciones:
-  1. Hay un defecto crítico y dos altos abiertos: un informe puede salir con una variante dudosa sin que la revise un genetista, y el genetista firma sin ver la evidencia.
-  2. Hay 6 casos P1 bloqueados: la reclasificación, la auditoría y el registro de versiones no están implementados.
-  3. Las métricas del modelo no se pudieron medir.
-- Frase de cierre: "Todas las pruebas automatizadas pasaron, y los problemas graves aparecieron en las manuales y exploratorias: el sistema se verifica, pero no se valida."
+- Conectarlo con la regla de liberación de la slide de riesgos (slide 5): no se libera si hay un defecto crítico o alto abierto, si falla una métrica del modelo o si quedan casos P1 sin ejecutar. Con una sola condición alcanza:
+  1. Hay un defecto crítico y dos altos abiertos: un informe puede salir con una variante dudosa sin que la revise un genetista, y el genetista firma sin ver la evidencia. Esta condición se cumple.
+  2. Las métricas del modelo no se pudieron medir, así que esa condición no se pudo verificar.
+  3. Todos los casos P1 se ejecutaron: los automatizados se aprobaron, pero dos fallaron en la ejecución manual (MAN-05 y MAN-06). La reclasificación y la auditoría ya se probaron y funcionan.
+- Frase de cierre: "Las pruebas automatizadas de nuestra implementación pasaron, pero las manuales y exploratorias encontraron defectos críticos y altos, y el modelo de IA real quedó sin validar."
 - Conectar con la introducción: verificar es comprobar que cumple la especificación; validar, que le sirve a quien lo usa. GCL-56 cumple la especificación y aun así no es seguro.
 - Riesgos residuales y limitaciones, dichos con honestidad:
   - La independencia es parcial, porque la implementación de referencia la hicimos nosotros.

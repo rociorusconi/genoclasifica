@@ -387,7 +387,7 @@ table.grid td:first-child { font-weight: 700; }
 .reco13 ol.why li { padding: 3px 0; }
 .reco13 ol.why li::marker { font-family: var(--font-display); font-weight: 800; color: #ff6a57; }
 /* Frase de cierre destacada */
-.close13 { position: absolute; left: 160px; right: 160px; top: 656px; border-left: 10px solid var(--red); background: var(--soft); padding: 18px 32px; font: 700 27px/1.3 var(--font-display); letter-spacing: -0.01em; }
+.close13 { position: absolute; left: 160px; right: 160px; top: 630px; border-left: 10px solid var(--red); background: var(--soft); padding: 18px 32px; font: 700 27px/1.3 var(--font-display); letter-spacing: -0.01em; }
 .close13 span { color: var(--red); }
 .s13 .lim13 { top: 790px; }
 .lim13 { position: absolute; left: 160px; right: 160px; top: 690px; }
@@ -555,13 +555,13 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <li>Revisión y firma</li>
                 <li>Emisión del informe</li>
                 <li>Portal mínimo</li>
+                <li>Auditoría, reclasificación y versiones del informe</li>
             </ul></div>
             <div class="out"><div class="kicker">Fuera</div><ul>
                 <li>Modelo de IA real</li>
                 <li>Carga y disponibilidad</li>
                 <li>Producción</li>
                 <li>Datos reales</li>
-                <li>Reclasificación, auditoría y versiones (no implementadas)</li>
             </ul></div>
         </div>
     </div>
@@ -571,7 +571,8 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
             <tbody>
                 <tr><td>Reglas de negocio</td><td>Unitario</td><td>Caja blanca, valores límite, TDD</td><td>JUnit 5, JaCoCo</td></tr>
                 <tr><td>Calidad de los tests</td><td>Unitario</td><td>Mutación</td><td>PIT</td></tr>
-                <tr><td>API REST / LIMS</td><td>Integración</td><td>Caja negra y gris</td><td>Spring Boot Test, Postman</td></tr>
+                <tr><td>API REST / LIMS</td><td>Integración</td><td>Caja negra</td><td>Spring Boot Test, Postman</td></tr>
+                <tr><td>Auditoría y base de datos</td><td>Integración</td><td>Caja gris</td><td>Spring Boot Test + SQL</td></tr>
                 <tr><td>Revisión y firma</td><td>Aceptación</td><td>BDD</td><td>Cucumber</td></tr>
                 <tr><td>Combinaciones</td><td>Sistema</td><td>Pairwise</td><td>Diseño manual + JUnit&nbsp;5</td></tr>
                 <tr><td>Portal</td><td>Sistema</td><td>Exploratoria y E2E</td><td>Selenium</td></tr>
@@ -656,7 +657,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <tr><td>Partición de equivalencia y valores límite</td><td>Q30 en 79,9 / 80,0 / 80,1</td><td>RF-02, RF-03, RF-05</td><td>41 casos</td></tr>
                 <tr><td>Tablas de decisión</td><td>Emisión del informe: muestra aceptada + variantes patogénicas + firma</td><td>RF-06, RF-07</td><td>2 tablas, 9 reglas</td></tr>
                 <tr class="q30"><td>Transición de estados</td><td>Ciclo de vida de la muestra</td><td>RF-01, RF-06, RF-08</td><td>12 válidas, 11 inválidas</td></tr>
-                <tr><td>Caja gris</td><td>Muestra bloqueada: nunca llega a 'Informe emitido'</td><td>RF-03, RF-07</td><td>4 diseñados, 1 ejecutado</td></tr>
+                <tr><td>Caja gris</td><td>Auditoría inalterable: un UPDATE por SQL se rechaza</td><td>RF-03, RF-08, RF-10</td><td>4 casos</td></tr>
                 <tr><td>Pairwise</td><td>4 parámetros: 54 combinaciones → 9 casos (83&nbsp;%&nbsp;menos)</td><td>Varios</td><td>9 casos</td></tr>
                 <tr class="q30"><td>Caja blanca</td><td>4 reglas de umbral: 100 % de ramas</td><td>RF-02, RF-03, RF-05</td><td>+2 casos encontrados</td></tr>
             </tbody>
@@ -703,7 +704,7 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
             <g stroke="#e0301e" stroke-width="3" fill="none" marker-end="url(#arR)" stroke-dasharray="8 6">
                 <path d="M70,118 L70,250"/>
                 <path d="M150,118 L150,180 L330,180 L330,250"/>
-                <path d="M662,118 L662,250"/>
+                <path d="M200,118 L200,150 L662,150 L662,250"/>
             </g>
             <g font-size="22" class="st" text-anchor="middle" fill="#e0301e">
                 <rect x="0"   y="254" width="160" height="80" fill="#fdeeec" stroke="#e0301e" stroke-width="3"/>
@@ -711,11 +712,12 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <rect x="210" y="254" width="240" height="80" fill="#fdeeec" stroke="#e0301e" stroke-width="3"/>
                 <text x="330" y="290">Calidad</text><text x="330" y="318">insuficiente</text>
                 <rect x="552" y="254" width="220" height="80" fill="#fdeeec" stroke="#e0301e" stroke-width="3"/>
-                <text x="662" y="302">Rechazada</text>
+                <text x="662" y="290">Rechazada</text>
+                <text x="662" y="318" font-size="17">duplicada o corrupta</text>
             </g>
         </svg>
     </div>
-    <p class="flow-note reveal d3">Automatizado con Spring Boot Test (<code>MuestraServiceTest</code>): 21 de 23 transiciones aprobadas. Las de reclasificación (T12 y TI8) no se ejecutaron: no está implementada.</p>
+    <p class="flow-note reveal d3">Automatizado con Spring Boot Test (<code>MuestraServiceTest</code> y <code>ReclasificacionTest</code>): 23 de 23 transiciones aprobadas, incluida la reclasificación (T12 y TI8).</p>
     <div class="invalid reveal d4">
         <span class="x">INVÁLIDA</span>
         <p>Pedir el PDF sin firma → <b>se rechaza</b>. La muestra sigue en <code>Pendiente de firma</code>.</p>
@@ -763,16 +765,16 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
         <div class="kicker reveal d1">Qué automatizamos</div>
         <div class="cols4">
             <div class="tool reveal d1"><div class="name">JUnit 5 + Spring Boot Test</div><div class="kind">Unitarias · integración · regresión</div></div>
-            <div class="tool reveal d2"><div class="name">Postman</div><div class="kind">API</div><p>Login, permisos por rol, datos inválidos o repetidos.</p></div>
+            <div class="tool reveal d2"><div class="name">Postman</div><div class="kind">API</div><p>Login, permisos por rol, datos inválidos o repetidos, reclasificación y auditoría.</p></div>
             <div class="tool reveal d3"><div class="name">Cucumber</div><div class="kind">BDD</div><p>Given-When-Then de revisión y firma, y umbral de confianza.</p></div>
             <div class="tool reveal d4"><div class="name">Selenium</div><div class="kind">Portal</div><p>Flujo de firma, permisos, muestra bloqueada y filtros.</p></div>
         </div>
     </div>
     <!-- Bloque 2: ¿las pruebas detectan errores? -->
     <div class="kicker s8k reveal d4">¿Las pruebas detectan errores?</div>
-    <div class="s8run reveal d4">Corrida final: <span>108 tests, 0 fallas</span></div>
+    <div class="s8run reveal d4">Corrida final: <span>122 tests, 0 fallas</span></div>
     <div class="results s8r reveal d4">
-        <div class="res"><div><div class="t">JaCoCo · cobertura</div><div class="goal">objetivo 80 %</div></div><div class="val">96,3 %<small>de líneas · 89,9 % de ramas</small></div></div>
+        <div class="res"><div><div class="t">JaCoCo · cobertura</div><div class="goal">objetivo 80 %</div></div><div class="val">94,0 %<small>de líneas · 87,9 % de ramas</small></div></div>
         <div class="res"><div><div class="t">PIT · mutación</div><div class="goal">objetivo 75 %</div></div><div class="val">100 %<small>41 de 41 mutantes eliminados · reglas de umbral</small></div></div>
     </div>
     <p class="s8note reveal d5">Qué no automatizamos y por qué: Exploración del portal y legibilidad del informe (juicio humano), pruebas únicas y el modelo de IA real (sin acceso).</p>
@@ -836,9 +838,9 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
                 <tr><td class="nm">Patogénicas como benignas</td><td>≤ 1 %</td><td>No medido</td><td><span class="sem na">–</span></td></tr>
                 <tr><td class="nm">Concordancia</td><td>≥ 95 %</td><td>No medido</td><td><span class="sem na">–</span></td></tr>
                 <tr class="grp"><td colspan="4">Proceso</td></tr>
-                <tr><td class="nm">Casos P1 y P2 aprobados</td><td>100 %</td><td>P1 fallidos y bloqueados</td><td><span class="sem no">✗</span></td></tr>
+                <tr><td class="nm">Casos P1 y P2 aprobados</td><td>100 %</td><td>P1 automatizados aprobados; 2 fallidos en ejecución manual (MAN-05/06)</td><td><span class="sem no">✗</span></td></tr>
                 <tr><td class="nm">Defectos críticos o altos abiertos</td><td>0</td><td>3</td><td><span class="sem no">✗</span></td></tr>
-                <tr><td class="nm">Cobertura JaCoCo</td><td>≥ 80 %</td><td>96,3 % de líneas · 89,9 % de ramas</td><td><span class="sem ok">✓</span></td></tr>
+                <tr><td class="nm">Cobertura JaCoCo</td><td>≥ 80 %</td><td>94,0 % de líneas · 87,9 % de ramas</td><td><span class="sem ok">✓</span></td></tr>
                 <tr><td class="nm">Puntaje de mutación PIT</td><td>≥ 75 %</td><td>100 % (41 de 41 mutantes)</td><td><span class="sem ok">✓</span></td></tr>
                 <tr class="grp"><td colspan="4">Rendimiento</td></tr>
                 <tr><td class="nm">Búsqueda en el portal</td><td>&lt; 3 s</td><td>Milisegundos (4 muestras)</td><td><span class="sem ok">✓</span></td></tr>
@@ -861,11 +863,11 @@ body.editing [contenteditable="true"] { outline: 2px dashed rgba(224, 48, 30, 0.
         <div class="main">No liberar</div>
         <ol class="why">
             <li>Un defecto crítico y dos altos abiertos: un informe puede salir con una variante dudosa sin que la revise un genetista, y el genetista firma sin ver la evidencia.</li>
-            <li>6 casos P1 bloqueados: la reclasificación, la auditoría y el registro de versiones no están implementados.</li>
             <li>Las métricas del modelo no se pudieron medir.</li>
+            <li>Casos P1 fallidos en la ejecución manual (MAN-05 y MAN-06). La reclasificación y la auditoría, en cambio, ya se probaron y funcionan.</li>
         </ol>
     </div>
-    <div class="close13 reveal d2">Todas las pruebas automatizadas pasaron, y los problemas graves aparecieron en las manuales y exploratorias: <span>el sistema se verifica, pero no se valida.</span></div>
+    <div class="close13 reveal d2">Las pruebas automatizadas de nuestra implementación pasaron, pero las manuales y exploratorias encontraron <span>defectos críticos y altos</span>, y el modelo de IA real quedó sin validar.</div>
     <div class="lim13 reveal d3">
         <div class="kicker">Riesgos residuales y limitaciones</div>
         <ul>
